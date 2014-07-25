@@ -1,0 +1,656 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{/accounts/gen/vis/paciorek/latex/paciorek-asa,times,graphics}
+%\input{~paciorek/latex/paciorekMacros}
+%\renewcommand{\baselinestretch}{1.5}
+\end_preamble
+\use_default_options false
+\begin_modules
+knitr
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 11
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 0
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Camp PalEON Review of Statistics Module
+\end_layout
+
+\begin_layout Standard
+In this module, we'll review the basics of probability, and touch back on
+ some programming in R.
+ Much of the material will be presented on the board, so some of these sections
+ are blank or incomplete.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+[insert thought questions/things for them to do for a few minutes]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Review of probability 
+\end_layout
+
+\begin_layout Standard
+Let's review probability by working through a canonical use of Bayes theorem
+ in diagnostic testing.
+ 
+\end_layout
+
+\begin_layout Standard
+In particular we want to think about 
+\begin_inset Formula 
+\[
+P(A|B)=\frac{P(B|A)P(A)}{P(B)}
+\]
+
+\end_inset
+
+but for concreteness let's do it with notation that is evocative and use
+ some numbers.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Example
+\series default
+: Suppose someone is tested for a rare disease that occurs in the population
+ in 1 in 1000 people and there is no information that suggests the person
+ has the disease.
+ It's just a routine test.
+ Also suppose the test is quite accurate: the probability of a false negative
+ is .01 and the probability of a false positive is .01.
+\begin_inset Formula 
+\begin{eqnarray*}
+P(D) & = & .001\\
+P(-|D) & = & .01\\
+P(+|D) & = & .99\\
+P(+|D^{c}) & = & .01
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+You are the person.
+ Your doctor calls you in and tells you that you tested positive.
+ Should you be worried? How worried?
+\end_layout
+
+\begin_layout Standard
+Let's work through this and illustrate with a Venn diagram.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Questions
+\series default
+: 
+\end_layout
+
+\begin_layout Enumerate
+Suppose A and B are independent.
+ What is 
+\begin_inset Formula $P(A|B)$
+\end_inset
+
+? 
+\end_layout
+
+\begin_layout Enumerate
+Suppose A and B are mutually exclusive (A can't happen if B happens).
+ What is 
+\begin_inset Formula $P(A|B)$
+\end_inset
+
+?
+\end_layout
+
+\begin_layout Subsection
+Interpreting Bayes' theorem in the context of Bayesian statistics
+\end_layout
+
+\begin_layout Standard
+Standard (frequentist) statistics that you are used to, such as working
+ with p-values, ask questions such as: If the null hypothesis is true, how
+ likely/extreme are the data, e.g.:
+\begin_inset Formula 
+\[
+P(Y|\theta=0)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Bayesian statistics uses Bayes theorem to turn the conditioning around:
+\begin_inset Formula 
+\[
+P(\theta|Y)=\frac{P(Y|\theta)P(\theta)}{P(Y)}\propto P(Y|\theta)P(\theta)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Given the data you've seen, what can we say about 
+\begin_inset Formula $\theta$
+\end_inset
+
+? In this case the data are just an event 
+\begin_inset Formula $Y$
+\end_inset
+
+ - did it happen or not.
+ And 
+\begin_inset Formula $\theta$
+\end_inset
+
+ is just a 0/1 state of the world that we want to know.
+ Think of two hypotheses that we are deciding between.
+ Once you see the data, what is the probability of one of the hypotheses.
+\end_layout
+
+\begin_layout Standard
+When we get to Bayesian statistics, the formula will still hold, but 
+\begin_inset Formula $Y$
+\end_inset
+
+ and 
+\begin_inset Formula $\theta$
+\end_inset
+
+ will be random variables instead of events.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Challenge
+\series default
+: In the context of the diagnostic testing example, consider the likelihood
+ and the prior.
+ Where would we would get numerical estimates of these quantities so we
+ could apply Bayes theorem?
+\end_layout
+
+\begin_layout Section
+Discrete random variables
+\end_layout
+
+\begin_layout Standard
+Let's use the example of coin-flipping to illustrate discrete random variables.
+ We'll talk about the probability mass function (analogous to the density),
+ the distribution function, expected values, and variance.
+ We'll cover this on the board.
+\end_layout
+
+\begin_layout Standard
+Another commonly-arising discrete distribution is the Poisson distribution.
+\begin_inset Formula 
+\[
+P(Y=y)=\frac{\exp(-\lambda)\lambda^{y}}{y!}
+\]
+
+\end_inset
+
+with 
+\begin_inset Formula $E(Y)=\lambda$
+\end_inset
+
+, 
+\begin_inset Formula $\mbox{Var}(Y)=\lambda$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Continuous random variables
+\end_layout
+
+\begin_layout Standard
+We'll use the normal distribution to illustrate continuous distributions.
+ We'll cover this on the board.
+\end_layout
+
+\begin_layout Standard
+Other commonly encountered continuous distributions are the 
+\emph on
+t
+\emph default
+ distribution, the beta, the gamma, and the inverse gamma.
+\end_layout
+
+\begin_layout Section
+Working with distributions in R
+\end_layout
+
+\begin_layout Standard
+R has functionality for lots of calculations with a variety of widely-used
+ distributions.
+ The basic ones are 
+\family typewriter
+rnorm()
+\family default
+, 
+\family typewriter
+dnorm()
+\family default
+, 
+\family typewriter
+pnorm()
+\family default
+ and 
+\family typewriter
+qnorm()
+\family default
+ for the normal distribution and analogs for other distributions, e.g., 
+\family typewriter
+rbinom()
+\family default
+, 
+\family typewriter
+dbinom()
+\family default
+, 
+\family typewriter
+pbinom()
+\family default
+, 
+\family typewriter
+qbinom()
+\family default
+.
+\end_layout
+
+\begin_layout Chunk
+<<distns, out.width=6in, out.height=3in>>=
+\end_layout
+
+\begin_layout Chunk
+y <- seq(-3, 3, length = 300)
+\end_layout
+
+\begin_layout Chunk
+par(mfrow = c(1,1))
+\end_layout
+
+\begin_layout Chunk
+plot(y, dnorm(y), type = 'l')
+\end_layout
+
+\begin_layout Chunk
+pnorm(-2)
+\end_layout
+
+\begin_layout Chunk
+pnorm(-1.96)
+\end_layout
+
+\begin_layout Chunk
+qnorm(0.975)
+\end_layout
+
+\begin_layout Chunk
+n <- 1000000
+\end_layout
+
+\begin_layout Chunk
+y <- rnorm(n)
+\end_layout
+
+\begin_layout Chunk
+# empirical analogs of the distributional quantities above
+\end_layout
+
+\begin_layout Chunk
+par(mfrow = c(1,2))
+\end_layout
+
+\begin_layout Chunk
+hist(y); hist(y, probability = TRUE)
+\end_layout
+
+\begin_layout Chunk
+mean(y)
+\end_layout
+
+\begin_layout Chunk
+mean(y <= -2)  # sum(y <= 2)/n
+\end_layout
+
+\begin_layout Chunk
+sort(y)[round(.975*n)] # empirical 97.5th percentile
+\end_layout
+
+\begin_layout Chunk
+@
+\end_layout
+
+\begin_layout Standard
+Note that if 
+\begin_inset Formula $n$
+\end_inset
+
+ is large enough, we can approximate characteristics of the distribution
+ using a sample.
+ We'll see this again when we talk about MCMC.
+\end_layout
+
+\begin_layout Section
+Joint distributions, marginal distributions and conditional distributions
+\end_layout
+
+\begin_layout Standard
+We'll cover this on the board.
+\end_layout
+
+\begin_layout Section
+R programming
+\end_layout
+
+\begin_layout Standard
+In addition to the R basics we've covered, we'll also need to be able to
+ do a bit of programming in R.
+ The three basic tools are functions (which we've seen), branching (i.e.,
+ if-else statements) and looping.
+\end_layout
+
+\begin_layout Chunk
+<<branching>>=
+\end_layout
+
+\begin_layout Chunk
+x = 4; y = 7
+\end_layout
+
+\begin_layout Chunk
+if(x > 3 && y < 5){
+\end_layout
+
+\begin_layout Chunk
+	print("success")
+\end_layout
+
+\begin_layout Chunk
+	print("doing some stuff")
+\end_layout
+
+\begin_layout Chunk
+} else{
+\end_layout
+
+\begin_layout Chunk
+	print("failure")
+\end_layout
+
+\begin_layout Chunk
+	print("doing something different")
+\end_layout
+
+\begin_layout Chunk
+}
+\end_layout
+
+\begin_layout Chunk
+@
+\end_layout
+
+\begin_layout Standard
+Programming languages generally provide syntax for looping a fixed number
+ of times or looping until some condition is met.
+ Most looping in R uses a 
+\family typewriter
+for
+\family default
+ loop.
+ As I've mentioned, loops in R are much slower than looping in a compiled
+ language such as C, so we try to avoid them using vectorized operations
+ and 
+\family typewriter
+apply()
+\family default
+.
+ Here's an example of a random walk (there are ways to do this without using
+ a loop).
+\end_layout
+
+\begin_layout Chunk
+<<forloop, out.width=4in>>=
+\end_layout
+
+\begin_layout Chunk
+nSteps <- 100
+\end_layout
+
+\begin_layout Chunk
+track <- matrix(NA, nr = nSteps, nc = 2)
+\end_layout
+
+\begin_layout Chunk
+track[1, ] <- c(0,0)
+\end_layout
+
+\begin_layout Chunk
+bound <- 20
+\end_layout
+
+\begin_layout Chunk
+plot(track[1, 1], track[1, 2], xlim = c(-bound, bound), ylim = c(-bound,
+ bound), 
+\end_layout
+
+\begin_layout Chunk
+  	pch = 16, xlab = 'x', ylab = 'y')
+\end_layout
+
+\begin_layout Chunk
+for(it in 2:nSteps){
+\end_layout
+
+\begin_layout Chunk
+	track[it, ] <- track[it-1, ] + sample(c(-1,1), 2, replace = TRUE)
+\end_layout
+
+\begin_layout Chunk
+	arrows(track[it-1, 1], track[it-1, 2], track[it, 1], track[it, 2],
+\end_layout
+
+\begin_layout Chunk
+		length = .05, angle = 20)
+\end_layout
+
+\begin_layout Chunk
+}
+\end_layout
+
+\begin_layout Chunk
+@
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Challenge
+\series default
+: modify my code to make the line a different color if it represents doubling-ba
+ck on the most recent movement.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Challenge
+\series default
+: Write a random walk function that allows the user to specify the initial
+ position and the number of steps.
+\end_layout
+
+\begin_layout Standard
+R also has a 
+\family typewriter
+while
+\family default
+ loop that allows one to keep looping until a condition is met.
+\end_layout
+
+\begin_layout Chunk
+<<whileloop, out.width=4in>>=
+\end_layout
+
+\begin_layout Chunk
+maxSteps <- 1000
+\end_layout
+
+\begin_layout Chunk
+track <- matrix(NA, nr = maxSteps, nc = 2)
+\end_layout
+
+\begin_layout Chunk
+track[1, ] <- c(0,0)
+\end_layout
+
+\begin_layout Chunk
+bound <- 20
+\end_layout
+
+\begin_layout Chunk
+plot(track[1, 1], track[1, 2], xlim = c(-bound, bound), ylim = c(-bound,
+ bound), 
+\end_layout
+
+\begin_layout Chunk
+  	pch = 16, xlab = 'x', ylab = 'y')
+\end_layout
+
+\begin_layout Chunk
+it <- 1
+\end_layout
+
+\begin_layout Chunk
+while(max(abs(track[it, ])) < bound && it < maxSteps){
+\end_layout
+
+\begin_layout Chunk
+	it <- it + 1
+\end_layout
+
+\begin_layout Chunk
+	track[it, ] <- track[it-1, ] + sample(c(-1,1), 2, replace = TRUE)
+\end_layout
+
+\begin_layout Chunk
+	arrows(track[it-1, 1], track[it-1, 2], track[it, 1], track[it, 2],
+\end_layout
+
+\begin_layout Chunk
+		length = .05, angle = 20)
+\end_layout
+
+\begin_layout Chunk
+}
+\end_layout
+
+\begin_layout Chunk
+title(main = "Computational modern art in R")
+\end_layout
+
+\begin_layout Chunk
+cat("Number of steps taken: ", it, ".
+\backslash
+n", sep = '')
+\end_layout
+
+\begin_layout Chunk
+@
+\end_layout
+
+\end_body
+\end_document
