@@ -1,0 +1,322 @@
+# PalEON Summer Course: R module
+## August 2014
+## Chris Paciorek
+
+
+In this module, we'll introduce R by way of working with some pollen data.
+ 
+First, let's make sure we have the course materials on our computers. We can download the material from Github by setting up a project in RStudio. 
+
+Go to "File->New Project" and select "Version Control" and "Git". Enter "https://github.com/PalEON-Project/Camp2014" as the "Repository URL" and click "Create Project" (you can choose the directory in which to place the project with the "Create project as subdirectory of" option). It should create a "Camp2014" directory with all of the materials within whichever directory you chose.
+
+# Reading in data
+
+We can read in data using the read.table() function, of which 
+`read.csv()`  is a variant for reading in comma-delimited (CSV) files.
+ `getwd()`  and `setwd()` help us navigate the computer's directory structure.
+ `read.fwf()`  will read fixed-width format files.
+
+```{r reading files}
+getwd()
+setwd('~/Desktop/Camp2014/statsR')
+
+pollen <- read.csv('data/newEngland/modernPollen.csv', header = TRUE)
+ponds <- read.csv('data/newEngland/pondInfo.csv') 
+#help(read.csv) 
+#help(read.table) 
+names(pollen) 
+head(pollen) 
+class(pollen)
+```
+
+# Interlude: operating at the command line
+
+
+In R, as in Linux/UNIX, there are a number of tools that enhance your efficiency
+:
+  * The up and down arrows recall previous entries.
+  * Hitting <tab> attempts to complete the function or object name.
+  * <Ctrl-k> kills the remainder of the line from the cursor forward.
+  * <Ctrl-a> goes to the beginning of the line (<Ctrl-e> often goes to the end but apparently not in RStudio).
+
+More generally, typing commands and saving your operations in text files
+ (aka scripts), rather than point-and-click operations, allows you to reproduce
+ your work, easily redo it and modify it, and share it with others.
+
+# R objects
+
+Everything in R is stored as an object, each of which has a class that describes
+ what the object contains and standard functions that operate on objects
+ in the class.
+ The basic classes are 
+
+  * *character*  vectors: these are sets of character values (i.e., strings).
+ Examples of character values are: "Sam", "0923", "Sam9", "Sam is", "Sam\t9", "Sam's the man.\nNo doubt.\n".  Each of these is a character vector of length 1.
+  * *numeric* vectors (i.e., double precision real numbers)
+  * *integer* vectors
+  * *logical* (T/F) vectors
+  * *lists*: vectors of arbitrary objects
+  * *factors*: vector-like objects of categorical variables with a pre-defined set of labels
+  * *functions*
+
+More complicated objects:
+  * Data frames can be thought of as a list of vectors of the same length, where the vectors may have different types.
+  * Matrices are different from data frames in that all the elements are of
+ a single type. Furthermore, matrices and arrays (which allow dimensions of 1, 2, 3, ....) can be thought of as vectors with information on dimensions (layout).
+ If you pass a matrix into a function expecting a vector, it will just treat
+ it as a vector (of concatenated columns).
+
+We can figure out what objects exist, as well as how much memory they take
+ up, and we can remove them.
+```{r objects}
+class(pollen) 
+x <- c(7.3, 5, 11) 
+class(x) 
+is.data.frame(x) 
+class(pollen$sitename) 
+pollen$sitename 
+as.character(pollen$sitename) 
+class(pollen$SPRUCE) 
+object.size(x) 
+x <- rnorm(10000000) 
+object.size(x) 
+print(object.size(x), units = "Mb")  
+
+# that code is a bit opaque and I'm lazy, so let's write our own function:
+size <- function(x){   
+     print(object.size(x), units = "Mb") 
+} 
+
+size(x) 
+ls() 
+rm(x) 
+ls() 
+```
+
+# Dataframe manipulation (and some plotting)
+
+Let's demonstrate how we can manipulate data sets.
+ First, let's get some information about our two datasets and merge them
+ together.
+
+```{r dataframeInfo}
+names(pollen) 
+class(names(pollen)) 
+names(pollen) <- tolower(names(pollen)) 
+names(ponds) <- tolower(names(ponds)) 
+cor(pollen$oak, pollen$spruce) 
+dim(pollen) 
+taxaCols <- 3:12
+pollen$total <- rowSums(pollen[ , taxaCols]) 
+pollen2 <- pollen 
+pollen2[ , taxaCols] <- pollen2[ , taxaCols] / pollen2$total # careful here: I know that R will divide each numerator column by the denominator column
+head(pollen2) 
+full <- merge(ponds, pollen2, by.x = "site", by.y = "sitename", all.x = FALSE, all.y = TRUE) 
+head(full) 
+summary(full) 
+taxaCols <- 9:18
+cor(full[ , taxaCols]) 
+require(fields, quietly = TRUE)
+image.plot(1:10, 1:10, cor(full[ , taxaCols])) # I should change the z-scale and the color scheme
+```
+
+Now let's make some basic plots.
+```{r initialPlots, fig.width=4}
+require(maps)
+plot(full$lon, full$lat, xlim = c(-73.5, -70), ylim = c(41.3,43.5), col = 'red', pch = 16) 
+map('state', add = TRUE) 
+par(mfrow=c(3,4)) 
+for(i in taxaCols){   
+  hist(full[ , i], main = names(full)[i], xlab = "proportion") 
+} 
+```
+
+**Challenge**: make a single plot that shows side-by-side boxplots of the proportions for each species. Find out what input formats the boxplot() function can handle. Manipulate the arguments to make your figure presentable.
+
+# More on indexing and subsetting
+
+
+\begin_layout Standard
+Now let's see some different ways to select subsets and use indexing.
+ Often there are multiple ways to do things in R.
+ Some are more efficient than others, which only really becomes an issue
+ when working with large objects.
+
+
+
+```{r subsetting}
+sub <- full[1:5, ] 
+full$lon < (-72.5) 
+west <- full[full$lon < -72.5, ] 
+full[full$lon < -72.5, c("oak", "pine")]
+indices <- which(full$lon < -72.5)
+indices
+full[indices, c(15,16)]
+west2 <- subset(full, lon < -72.5, select = c("oak", "pine"))
+```
+
+**Challenge**: extract the even rows of the full dataset. Consider the 
+`rep()` and `seq()` functions.
+
+R does not provide a built-in function for sorting data frames.
+```{r sorting}
+full <- full[order(full$lat, full$lon), ]
+head(full)[ , 1:8]
+```
+
+That's a bit frustrating but easily fixable once we talk more about writing
+ functions. (Also see `arrange()` in the `plyr` package.)
+
+# Vectorized operations and the apply function
+
+Many R functions operate on vectors without having to loop over the indices,
+ and in fact vectorized operations are generally much faster than using
+ a loop.
+
+```{r vectorized operations}
+log(full$oak)
+full$coldSpp <- full$beech + full$hemlock + full$spruce 
+full$west <- full$lon < -72.5 
+full$north <- full$lat > 42.5 
+full$north <- FALSE # example of recyling 
+full$north[full$lat > 42.5] <- TRUE  
+full$nw <- full$west & full$north 
+round(full$lat, digits = 1) 
+```
+
+Useful commands are `with()` and `within()`, which allow you to avoid a bunch of typing. The basic idea is to do a bunch of stuff all within a certain context.
+
+```{r with}
+full <- within(full, warmSpp <- oak + hemlock)
+full$warmSpp[1:8]
+```
+
+R has a feature called recycling by which it will fill in additional entries in vectors, matrices, data frames:
+
+```{r recycling, fig.width=4}
+mat <- matrix(1:2, nrow = 4, ncol = 4) # what do you think will happen?
+mat <- matrix(1:3, nrow = 4, ncol = 4) 
+```
+
+One useful type of data structure in R is a list.
+ A list is a vector of potentially unrelated items.
+ Lists are commonly used as the output from functions.
+
+```{r lists}
+myList <- list(a = 7, b = c(8, 9, 11), d = "wtfit?", e = list(first = 7,
+ second = 8)) 
+myList$b 
+myList[[2]] 
+myList$e$first
+is.list(full)
+myModel = lm(spruce ~ lat, data = full) 
+is.list(myModel) 
+names(myModel) 
+myModel$coefficients 
+```
+
+We can use the apply function to "lapply" an arbitrary function to each element of the list. This is often faster (and is easier to write) than using a loop.
+
+```{r apply}
+myList = list(1:3, 4:8, 101, 111:150) 
+lapply(myList, max) # vs.
+out = rep(NA, length(myList)) 
+for(i in 1:length(myList))   
+   out[i] <- max(myList[[i]]) 
+```
+
+**Challenge**: how can I find the median abundance of each species across all the ponds?
+ 
+# Functions
+
+We've already seen a bit of functions: we wrote our own little function
+ and we've used lots of functions from the core R software and additional
+ packages.
+
+Functions allow one to modularize their code and are at the core of good
+ programming.
+ 
+Let's create a function to plot the proportion of a given taxon on a map. Once we we've done this, we can use the function on each taxon to create one map per taxon.
+
+What do we need to decide in terms of what our function is going to do, what its arguments should be, and what steps the function should carry out? 
+
+First, we'll prototype the code for a single taxon.
+
+```{r function_prototype}
+
+```
+
+Now let's work through how we would make a function out of this.
+
+```{r full_function}
+
+```
+
+# Plotting bells and whistles
+
+Let's take our previous plots and gussy them up for the ball, or at least fit for a trip into the village.
+
+Note that more recent R packages provide more visually-appealing graphics and more elegant syntax, in particular the `ggplot2` package. We'll likely see more of that later this week.
+
+```{r advanced plots}
+pdf('treeComp.pdf', height = 4, width = 7)
+par(mfrow = c(2,5), mai = c(.25,.25,.3,.1), omi = c(.3, .3, .4, 0))
+for(i in taxaCols)
+      hist(full[ , i], xlim = c(0, 1), xlab = '', ylab = '', main = names(full)[i])
+title(ylab = 'frequency', outer = TRUE, line = 1, cex.lab = 1.5)
+title(xlab = 'proportion of pollen', outer = TRUE, line = 1, cex.lab = 1.5)
+title(main = paste('Pollen composition of ', nrow(full), ' ponds in New England', sep = ''), outer = TRUE, line = 1, cex.main = 1.5)
+dev.off()
+#help(par)
+par()$mfrow
+```
+
+**On your own**: Take a look at the sort of graphics that R can create by invoking `demo(graphics)`, `demo(persp)`, `demo(image)`.
+
+# Packages and loading data from other software
+
+As part of preparing for the course, you've probably already downloaded
+ and installed an R package from the R archive, CRAN.
+ Packages provide additional functionality and are the "killer app"
+ of R (think the App Store for Apple).
+ The packages are contributed by users and R developers and vary in quality.
+ They implement most statistical algorithms (and other algorithms and utilities)
+ that now exist.
+ So if you're about to code something, it's worth checking to see if it's
+ already been done.
+ And if you develop or implement a new method, consider contributing it
+ to CRAN as a package.
+
+A useful place to look for answers to questions, find out about functionality
+ and pose questions is the [R mailing list and its archive](http://tolstoy.newcastle.edu.au/R/).  If you do post, follow the guidelines and provide enough information about the issue for those reading the list to be able to understand the question  and reproduce any problems.
+ 
+One very useful package is the `foreign` package, which contains interfaces that can read and write data formats for SAS, Stata, DBF, etc.
+ For those who use netCDF and HDF files, there are packages that deal with
+ those too (ncdf in the case of netCDF).
+
+```{r packages}
+library(foreign) 
+#library(help = foreign) 
+```
+
+# Finishing up
+
+You can save your code in text files and read it all in at once, using `source()`: e.g.,
+```{r source}
+source(file.path('code', 'silly.R'))
+```
+
+You can save some or all of your objects in a compressed R data file
+ and load the objects back into R on any operating system, regardless of the system used to create the file.
+
+```{r save}
+save(full, pollen, ponds, file = 'pollenAnalData.Rda') 
+save.image('pollenFullAnal.Rda')
+rm(list = ls()) 
+ls() 
+load('pollenAnalData.Rda') 
+ls() 
+```
+
+You can write out CSV and other delimited files with `write.table()` and `write.csv()`.
+
