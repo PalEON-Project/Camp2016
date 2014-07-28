@@ -1,0 +1,293 @@
+# PalEON Summer Course: MCMC with JAGS module
+## August 2014
+## Chris Paciorek
+
+
+In this module, we'll do some hands-on work to fit a time series model via MCMC with JAGS. 
+
+
+Let's work through our mixed model example and the DLM example using
+JAGS (or BUGS).
+
+
+\subsection{Mixed model}
+
+Here we'll use simulated data.
+
+```{r mixedModelData}
+theta <- 2
+sig <- 2
+nMoms <- 10
+
+## IGNORE THE MAN BEHIND THE CURTAIN ####
+set.seed(0)
+mus <- rgamma(nMoms, shape = 2, scale = 1)
+nPups <- rbinom(nMoms, 15, prob = .4) 
+momIds <- rep(1:nMoms, times = nPups)
+y <- rnorm(sum(nPups), mus[momIds], sig)
+n <- sum(nPups)
+## IGNORE THE CODE ABOVE
+```
+
+Here's the BUGS code for the model.
+
+```{r bugsCode_mixedModel}
+### model function (note this looks like R code but is really JAGS code for defining a model
+mixedModel <- function(){
+  # (hyper)priors
+  sig ~ dunif(0, 100)
+  tau ~ dunif(0, 100)
+  theta ~ dnorm(0,.00001)
+  # some transformations to get precisions from sd's
+  tau2Inv <- 1/(tau^2)
+  sig2Inv <- 1/(sig^2)
+  # latent value layer
+  for(i in 1:nMoms){
+    mus[i] ~ dnorm(theta, tau2Inv)
+  }
+  # likelihood
+  for(j in 1:n)
+    {
+      y[j] ~ dnorm(mus[momIds[j]], sig2Inv)
+    }
+}
+```
+
+Here's how we run it from R.
+
+```{r run_mixed}
+require(R2jags, quietly = TRUE) 
+out <- jags(data = list(y = y, n = n, nMoms = nMoms, momIds = momIds),
+  parameters.to.save = c('theta','sig','tau', 'mus'), n.chains = 1,
+  n.iter = 2000, n.burnin = 1000, model.file = mixedModel, DIC = FALSE)
+```
+
+
+A few things to check to see if the MCMC is performing well:
+- Look at the trace plots and see if the initial part of the chain looks
+similar to the later part. If not, you need a longer burn-in period.
+- Look at the trace plots and see if the chain is mixing. We want to
+see rapid movement up and down, not slow excursions.
+- See if there are any posterior correlations between parameters that
+are near 1 or -1, which indicate trading off between parameters.
+- Run the model with multiple chains (with different starting values)
+and see that all the chains converge to the same posterior distribution.
+\end{enumerate}
+
+Let's look at some figures that illustrate these checks.
+
+```{r mixed_diagnostics, eval=FALSE}
+out.mcmc <- as.mcmc(out)[[1]]
+plot(out.mcmc)
+crosscorr.plot(out.mcmc)
+mu1 <- c(out.mcmc[ , 1])
+sig <- c(out.mcmc[ , 11])
+tau <- c(out.mcmc[ , 12])
+theta <- c(out.mcmc[ , 13])
+plot(mu1, theta)
+plot(sig, tau)
+```
+
+For the sake of time, I'll leave out the use of multiple chains, but it is 
+a very good idea in general.
+
+# HMM for pollen
+
+In the statistics module, we worked on a HMM with a binomial model
+for the data (the likelihood) and a random walk Markov model on the
+logit scale as our model for the latent process. Now we're going to
+make that model a bit more sophisticated.
+
+$$ 
+\mbox{logit}(\theta_t)  \sim  N(\mu + \rho (\mbox{logit}(\theta_{t-1}) - \mu), \tau^2)
+$$
+$$
+y_{t}  \sim  \mbox{Binom}(n_{t},\theta_{t}).
+$$
+
+$\mu$ allows the model to have an arbitrary overall mean, while $\rho$ controls the auto-correlation over time.
+When $\rho = 1$, we have a random walk model, and when $\rho \in (-1, 1)$ we have an autoregressive model. 
+
+Now let's fit the
+model to fake data simulated from the model (in this case we know
+the statistical model is a good model for the data).
+
+First I'll generate fake data (i.e., simulating from the forward model,
+as we did yesterday).
+
+```{r generate_DLM}
+nT <- 100
+n <- 50
+theta0 <- 0.2
+tau <- 0.2
+
+logit <- function(x) log(x/(1-x))
+expit <- function(x) exp(x) / (1+exp(x))
+
+genDLM <- function(mu = 0, rho = 1, tau, theta0, n, nT) {
+  if(length(n) == 1) n <- rep(n, nT)
+  theta <- logitTheta <- y <- rep(0, nT)
+  for(i in seq_len(nT)) {
+    if(i == 1) {
+      logitTheta[i] <- rnorm(1, mu + rho*(logit(theta0) - mu), tau)
+    } else {
+      logitTheta[i] <- rnorm(1, mu + rho*(logitTheta[i-1] - mu), tau)
+    }
+    y[i] <- rbinom(1, n[i], expit(logitTheta[i]))
+  }
+  return(cbind(n, y, expit(logitTheta)))
+}
+
+set.seed(0)
+out <- genDLM(rho = .95, mu = -1, tau = tau, theta0 = theta0, n = n, nT = nT)
+n <- out[ , 1]
+y <- out[ , 2]
+theta <- out[ , 3]
+```
+
+Here's the BUGS code for the model. 
+
+```{r dlmFake}
+dlmFake <- function(){
+	# (hyper)priors
+        mu ~ dunif(-5, 5)
+        rho ~ dunif(-1, 1)
+	tau ~ dunif(0, 100)
+	logitTheta0 ~ dnorm(0, .000001)	
+    # deterministic transformation
+	tau2Inv <- 1/(tau^2)
+    
+	# latent process evolution and likelihood
+	logitTheta[1] ~ dnorm(mu + rho*(logitTheta0 - mu), tau2Inv)
+    theta[1] <- exp(logitTheta[1])/(1+exp(logitTheta[1]))  
+    y[1] ~ dbin(theta[1], n[1])
+	for(i in 2:nT){
+		logitTheta[i] ~ dnorm(mu + rho*(logitTheta[i-1] - mu), tau2Inv)
+		theta[i] <- exp(logitTheta[i])/(1+exp(logitTheta[i]))
+		y[i] ~ dbin(theta[i], n[i])
+	}
+}
+```
+
+Now fit the model using JAGS and look at the fits.
+
+```{r fit_dlmFake}
+out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('theta', 'mu', 'rho', 'tau'), 
+	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = dlmFake, DIC = FALSE)
+out.mcmc <- as.mcmc(out)[[1]]
+colNames <- dimnames(out.mcmc)[[2]]
+whichTheta <- grep('theta', colNames)
+thetaPost <- out.mcmc[ , whichTheta]
+thetaNames <- dimnames(thetaPost)[[2]]
+index <- gsub("theta\\[", "", thetaNames)
+index <- as.numeric(gsub("\\]", "", index))
+thetaPost <- thetaPost[ , order(index)]
+
+plot(seq_len(nT), theta, type = 'l')
+lines(seq_len(nT), colMeans(thetaPost), col = 'blue')
+points(seq_len(nT), y/n, col = 'red')
+plot(seq_len(nT), theta, type = 'l')
+quants <- apply(thetaPost, 2, quantile, c(.025, .975))
+# lines(seq_len(nT), quants[1, ], col = 'blue', lty = 2)
+# lines(seq_len(nT), quants[2, ], col = 'blue', lty = 2)
+polygon(cbind(c(seq_len(nT), nT:1, 1), c(quants[1, ], rev(quants[2, ]), quants[1, 1])), border = NA, col = 'lightblue')
+lines(seq_len(nT), theta)
+lines(seq_len(nT), colMeans(thetaPost), col = 'blue')
+points(seq_len(nT), y/n, col = 'red')
+par(mfrow = c(1, 3))
+nIts <- nrow(out.mcmc)
+plot(seq_len(nIts), out.mcmc[ , 1], type = 'l', main = 'mu')
+plot(seq_len(nIts), out.mcmc[ , 2], type = 'l', main = 'rho')
+plot(seq_len(nIts), out.mcmc[ , 3], type = 'l', main = 'tau')
+print(mean(out.mcmc[201:1000, 1]))
+print(mean(out.mcmc[201:1000, 2]))
+print(mean(out.mcmc[201:1000, 3]))
+```
+
+Questions:
+- Have we done better than the empirical estimates? Why?
+- Any ideas why we might not be able to estimate $\mu$ very well?
+
+Note: in this model, both $\rho$ and $\tau^{2}$ determine how quickly the process
+changes over time. Smaller values of $\rho$ and larger values of $\tau$  allow more jumpiness while the reverse force smoother change.
+
+Let's also see how we can choose or generate our own starting values. (See the help on `jags()` for how to set specific initial values.)
+
+```{r own_start}
+# with a function
+inits <- function(){
+	list('mu' = runif(1, -3, 3), 'rho' = runif(1, 0.5, 1), 'tau' = runif(1, .01, 5), 'logitTheta' = rnorm(nT, 0, 3)) 
+}
+# see the documentation for jags()
+out <- jags(data = list(nT = nT, n = n, y = y), inits = inits, parameters.to.save = c('mu', 'tau', 'rho'), 
+	n.thin = 1, n.chains = 3, n.iter = 1000, n.burnin = 0, model.file = dlmFake, DIC = FALSE)
+traceplot(out, mfrow = c(1, 3), ask = FALSE)
+```
+
+Finally let's do an initial fit to real data from Tower Lake,
+which we've already worked with some. First we'll read in the data.
+% (formerly Aino)
+
+```{r read_data}
+data <- read.csv('data/newEngland/PollenTimeSeries.csv')
+#data <- read.csv('data/upperMidwest/towerLake.csv')
+names(data)[4] <- "calAge"
+sub <- subset(data, sitename == 'aino')
+sub$calAge <- -sub$calAge
+sub <- sub[order(sub$calAge), ]
+sub$n <- rowSums(sub[ , 5:14])
+nT <- nrow(sub)
+plot(sub$calAge, sub$oak/sub$n)
+y <- sub$oak
+n <- round(sub$n)
+```
+
+
+Here's the BUGS code for the model. 
+
+[add mu and rho here]
+
+```{r dlm, eval=FALSE}
+dlm <- function(){
+	logitTheta0 ~ dnorm(0, .000001)	
+	tau ~ dunif(0, 100)
+	tau2Inv <- 1/(tau^2)
+
+	logitTheta[1] ~ dnorm(logitTheta0, tau2Inv)
+    theta[1] <- exp(logitTheta[1])/(1+exp(logitTheta[1]))
+    y[1] ~ dbin(theta[1], n[1])
+	for(i in 2:nT){
+		logitTheta[i] ~ dnorm(logitTheta[i-1], tau2Inv)
+		theta[i] <- exp(logitTheta[i])/(1+exp(logitTheta[i]))
+		y[i] ~ dbin(theta[i], n[i])
+	}
+}
+```
+
+And let's fit the model.
+
+```{r fit_dlm, eval=FALSE}
+out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('tau', 'theta'), 
+	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = dlm, DIC = FALSE)
+out.mcmc <- as.mcmc(out)
+thetaHat <- sub$oak/sub$n
+plot(sub$calAge, thetaHat, col = 'red')
+lines(sub$calAge, colMeans(out.mcmc)[seq_len(nT)], col = 'blue')
+quants <- apply(out.mcmc[ , seq_len(nT)], 2, quantile, c(.025, .975))
+polygon(cbind(c(sub$calAge, rev(sub$calAge), sub$calAge[1]), c(quants[1, ], 
+	rev(quants[2, ]), quants[1, 1])), border = NA, col = 'lightblue')
+lines(sub$calAge, thetaHat, col = 'red')
+lines(sub$calAge, colMeans(out.mcmc)[seq_len(nT)], col = 'blue')
+title('oak at Aino Pond, MA')
+abline(v = 1650 - 1950, col = 'grey')
+```
+
+# Next steps
+
+- Challenge: How we would code up a model that treats depth
+or radiocarbon years as the time index and correctly accounts for
+the irregular spacing of data.
+- Challenge: Let's consider some of the aspects of the data
+and the scientific context that have been left out of our model for
+pollen. 
+

@@ -1,0 +1,521 @@
+# PalEON Summer Course: Bayesian statistics module
+## August 2014
+## Chris Paciorek
+
+In this module, we'll cover the basics of Bayesian statistics, hierarchical
+ modeling, and MCMC.
+
+# The Bayesian recipe: Likelihood, prior and posterior
+
+- **Prior**: $g(\theta)$ (a pdf or pmf) summarizes our beliefs about 
+$\theta$ before we collect (or analyze) the dataset we have.
+ $\theta$ might be a single thing or a vector of things.
+- **Posterior**: $g(\theta|Y_{1}=y_{1},\ldots,Y_{n}=y_{n})$
+ (a pdf or pmf) summarizes our new beliefs informed by the dataset.
+  + Generically, $g(\theta|y)$ where $y=\{y_{1},\ldots,y_{n}\}$
+ indicates the vector of data values.
+  + Note that this is a conditional distribution, given the data, which is intuitive.
+  + Our goal is to find the posterior mathematically and interpret it scientifically.
+- We use Bayes theorem to find  $g(\theta|y)$, making use of $f(y|\theta)$, by using a version of Bayes theorem for random variables rather than events:
+$$
+g(\theta|Y=y)=\frac{f(y|\theta)g(\theta)}{g(y)}\propto f(y|\theta)g(\theta)
+$$
+- We use the likelihood, $f(y|\theta)$ (pdf or pmf of the data), to update the prior.
+
+# A basic example with binomial data
+
+
+We'll illustrate a simple Bayesian analysis using composition data for a
+ single species from a single site.
+ Suppose we are particularly interested in oak composition and we count
+ pollen grains and record the number of oak and number of non-oak grains.
+ We want to know what proportion, 
+ $\theta$, of oak grains there are in the entire 'population', not just the 
+ $n=100$  grains that we counted.
+
+What is the likelihood? I.e., what is the distribution of the data we observe
+ given the unknown of interest?
+
+Ok, now the prior.
+ 
+**Question**: What could I use as a distribution for the unknown that reflects not having
+ any beliefs in advance of seeing the data? First think about what the possible
+ values of $\theta$
+ are.
+
+Ok, once we have a prior and likelihood, we can get an expression proportional to the posterior distribution:
+$$
+g(\theta|y)  \propto  f(y|\theta)g(\theta)
+$$
+$$
+\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;  =  {n \choose y}\theta^{y}(1-\theta)^{n-y}\cdot1
+$$
+$$
+\;\;\;\;\;\;\;\;\;\;\;\; \propto  \theta^{y}(1-\theta)^{n-y}
+$$
+
+
+
+So in some sense we are done.
+ We can plot this expression AS A FUNCTION OF 
+ $\theta$, not of 
+ $y$.
+ 
+Often we want to know the expected value of the posterior distribution, or the variance/standard
+ deviation or percentiles of the distribution.
+ 
+# The beta distribution
+
+Suppose $\theta$ is a continuous random variable whose values must be in 
+ $(0,1)$. I.e., $\theta$  could represent a probability.
+
+A distribution that is often used to represent uncertainty in such a random
+ variable is the beta distribution, which has parameters $\alpha$ and $\beta$.
+ If a random variable $\theta$ is distributed according to a beta distribution, its pdf is:
+ $$
+f(\theta)=\frac{1}{B(\alpha,\beta)}\theta^{\alpha-1}(1-\theta)^{\beta-1}
+$$
+
+ $B(\alpha,\beta)$ is a mathematical function that cannot be evaluated in closed form but
+ can be calculated on a computer. Confusingly, it's called the 'beta' function.
+ 
+The mean and variance of the distribution are:
+ $E(\theta)=\frac{\alpha}{\alpha+\beta}$;
+ $Var(\theta)=\frac{\alpha\beta}{(\alpha+\beta)^{2}(\alpha+\beta+1)}$.
+ As we change $\alpha$ and $\beta$, we get different beta
+ distributions:
+
+<center>![fig 1](plots/betaDist.png)</center>
+
+# Revisiting our example
+
+Recall we have the following: $g(\theta|y)\propto\theta^{y}(1-\theta)^{n-y}$
+
+What is the distribution of  $\theta$?
+
+Suppose  $y=35$ and $n=100$.
+
+```{r flatprior, fig.width=7}
+y <- 35; n <- 100
+thetaSeq <- seq(0, 1, length = 200)
+lik <- dbinom(y, n, thetaSeq)
+prior <- rep(1, 200)
+alphaPost <- y+1; betaPost <- n-y+1
+post <- dbeta(thetaSeq, alphaPost, betaPost)
+plot(thetaSeq, post, type = 'l')
+lines(thetaSeq, prior, col = 'red')
+lines(thetaSeq, lik*80, col = 'blue') # scaling of likelihood is arbitrary -- it's not a density for theta
+legend(0, 8, legend = c('prior', 'likelihood', 'post'), col = c('red','blue','black'), lty = rep(1,3), bty = 'n')
+```
+That illustrated prior ignorance.
+ Now suppose we think we know something about this location, and we have
+ some idea about the proportion of oak in the forest.
+ (Perhaps based on a previous study.)
+For the moment (we'll see why in a minute), let's use a beta distribution
+ to capture our belief about  $p$ in advance of seeing the data.
+ Suppose we think there is about 20% oak in the forest with a standard deviation
+ of 10%. We can roughly capture this belief using a beta distribution with 
+ $\alpha=3$, $\beta=12$.
+
+**Challenge**: How did I come up with  $\alpha$ and $\beta$?
+
+Let's go back to likelihood times prior:
+
+$$
+g(\theta|y)  \propto  f(y|\theta)g(\theta)
+$$
+$$
+  =  {n \choose y}\theta^{y}(1-\theta)^{n-y}\frac{1}{B(\alpha,\beta)}\theta^{\alpha-1}(1-\theta)^{\beta-1}
+$$
+$$
+  \propto  \theta^{y}(1-\theta)^{n-y}\theta^{\alpha-1}(1-\theta)^{\beta-1}
+$$
+$$
+  =  \theta^{y+\alpha-1}(1-\theta)^{n-y+\beta-1}
+$$
+
+
+**Questions**: What is the posterior distribution of 
+ $p$ now? What is the posterior expected value? What is the posterior variance?
+
+```{r infPrior, fig.width=7}
+y <- 35; n <- 100
+thetaSeq <- seq(0, 1, length = 200)
+lik <- dbinom(y, n, thetaSeq)
+alphaPrior <- 3; betaPrior <- 12
+prior <- dbeta(thetaSeq, alphaPrior, betaPrior) 
+alphaPost <- y+alphaPrior; betaPost <- n-y+betaPrior
+post <- dbeta(thetaSeq, alphaPost, betaPost)
+plot(thetaSeq, post, type = 'l')
+lines(thetaSeq, prior, col = 'red')
+lines(thetaSeq, lik*80, col = 'blue')  # scaling arbitrary
+legend(0, 8, legend = c('prior', 'lik', 'post'), col = c('red','blue','black'), lty = rep(1,3), bty = 'n')
+```
+
+Let's see some different cases where we vary the sample size and see how
+ influential the prior distribution is.
+
+# Using the posterior distribution 
+
+If we know the posterior as an actual distribution, we can use the posterior
+ mean (or median) as our estimate and get a 95% uncertainty (credible) interval
+ from the 2.5th and 97.5th percentiles of the distribution.
+
+```{r posteriorInference, fig.width=7}
+y <- 35; n <- 100
+alphaPost <- y+1; betaPost <- n-y+1
+qbeta(c(.025, .5, .975), alphaPost, betaPost)
+postMean <- alphaPost/(alphaPost + betaPost)
+postSD <- sqrt(alphaPost*betaPost / ((alphaPost + betaPost)^2 * (alphaPost
+ + betaPost + 1)))
+postMean
+postSD
+```
+
+Often we won't know the distribution as a standard distribution but we will
+ have a sample from the distribution.
+ In particular we'll often have output from an MCMC.
+ Recall from the statistics module that we can use empirical quantities
+ calculated from a sample from a distribution to approximate the characteristics
+ of the distribution.
+
+```{r posteriorInferenceWithSample, fig.width=7}
+####### PAY NO ATTENTION TO THE MAN BEHIND THE CURTAIN ######
+fakeMCMCsample <- rbeta(2000, alphaPost, betaPost) 
+#############################################################
+
+# now use 'fakeMCMCsample' as if it came from an actual MCMC, 
+# ignoring the fact that theta has a beta distribution
+
+quantile(fakeMCMCsample, c(.025, .5, .975))
+mean(fakeMCMCsample)
+sd(fakeMCMCsample)
+```
+
+
+
+# Hierarchical models and latent processes
+
+
+The basic idea of a hierarchical model is to create a mathematical representation (a model) using the language of probability distributions to capture the
+ main features of our data and the underlying process of interest.
+ Our goal is generally to either better understand features of the underlying
+ process or make predictions based on the model.
+
+## A basic hierarchical model
+
+The most basic hierarchical model has a data layer, a single latent layer,
+ and a layer of (hyper)parameters.
+ Let's suppose we have data on rats in a laboratory (say some metabolite
+ in blood), with each mother rat having multiple pups, and with us measuring
+ some outcome on each pup.
+ We want a model that accounts for the fact that pups within a litter are
+ related.
+ Option A would be to try to introduce some sort of correlation structure
+ into how we model the data.
+ But let's first consider an alternative, option B, that adds some variables
+ to help guide our thinking about the process at hand.
+
+$$
+y_{im} \sim \mathcal{N}(\mu_{m},\sigma^{2});\, i=1,\ldots,n_{m}
+$$
+$$
+\mu_{m}  \sim  \mathcal{N}(\theta,\tau^{2})\, m=1,\ldots,M
+$$
+
+
+
+On the board, we'll consider a graphical representation of this model.
+ (In the BUGS manuals and examples, you'll see lots of model structures
+ illustrated as graphs.)
+
+Now let's return to Option A.
+ In a model with latent values such as this one, a basic statistical approach
+ to dealing with the high dimensionality is to integrate over the latent
+ values.
+ If we do this (integrating over 
+ $\mu=(\mu_{1},\ldots,\mu_{M})$, we end up with a model that I'll illustrate on the board, with a so-called compound symmetry
+ correlation structure.
+
+So far there hasn't really been a scientific question; we've just tried
+ to model the structure of the data.
+ Let's take the analogue of a simple t-test.
+ Assume we have two groups of mothers and we test a drug or a chemical in
+ one group and use the other group as the placebo.
+
+**Challenge**: How would we change our initial model and what quantity in the model is
+ now the main focus of interest? What would a graph of the model look like?
+
+
+Now let's talk through what would be needed to modify this model to relate
+ to vegetation data.
+ Let's consider stands of trees within a forest.
+ Question: What aspects of the model would change?
+
+
+Note: henceforth I'll refer to all the unknowns (latent process values and
+ hyperparameters) as the 'parameters'.
+ Basically anything that is not data or fixed constants (such as sample
+ sizes and covariates/predictors) is a parameter in the model.
+
+
+## Prediction
+
+Let's think about how we would make predictions from this model.
+ Suppose I either know all the unknown parameters and latent values or have
+ estimates for them.
+
+**Questions**:
+ 1. What is our best guess for the  $y$ for a new pup from the first mother?
+ 2. What is our best guess for the $\mu$ for a mother for whom we have no data?
+ 3. What is our best guess for the $y$ for a new pup from a mother for which we don't have data?
+ 4. Comparing #1 and #3, for which one should our uncertainty be greater? Let's consider 
+ $\mbox{Var}(y|\mu)$ and $\mbox{Var}(y|\theta)$, but first let's consider questions 5-7.
+ 5. How can I draw a sample of possible $y$'s for a new pup from the first mother?
+ 6. How can I draw a sample of possible $y$'s for a new pup from a mother with no data?
+ 7. How does our construction of new $y$'s support our conclusion in #4?
+
+The distribution of new data is called the *predictive distribution*.
+
+## Adding complexity to the latent layer
+
+Let's consider a model for the evolution of sediment pollen over time.
+ Unlike the above example, we want the latent values to be related to each
+ other in a manner informed by the time structure.
+ 
+One common model in these contexts, if we treat time as being discrete,
+ is a hidden Markov model (HMM), also known as a dynamic linear model (DLM)
+ and as a state space model.
+
+$$
+y_{t} \sim  \mathcal{N}(\theta_{t},\sigma^{2})
+$$
+$$
+\theta_{t} \sim \mathcal{N}(\mu + \rho(\theta_{t-1}-\mu),\tau^{2})
+$$
+
+The first equation is the likelihood, or the noise model.
+ The second equation is the model for the latent (or hidden) process, which
+ may be called the state model or the latent process.
+ It's a 'hidden' model because we don't directly observe the process.
+ It's a Markov model because the latent process value at time 
+ $t$ depends only on the process value at the previous time step.
+ 
+To complete the Bayesian model, we need prior distributions for the parameters
+ and for the initial state, $g(\mu, \rho, \sigma^{2},\tau^{2},\theta_{0})$.
+
+For the statistics module, you wrote code in R to simulate from a simplified version
+ of this model.
+ That 'forward' simulation took the parameters as known and simulated data
+ that might be generated from such a model.
+ Our Bayesian analysis in the simple binomial model for oak pollen above
+ did the reverse: it took the data and a model structure and tried to reconstruc
+t what the plausible values of the unknown parameters and latent values
+ are.
+ Thus our Bayesian statistical analysis is also known as an 'inverse' problem.
+
+
+## General DLMs
+
+More generally, we might have data and process values that relate to each
+ other in more complicated ways.
+ For example, we might have the following where  $y_{t}$ and $\theta_{t}$
+ are vectors at each time step:
+$$
+y_{t}  \sim  \mathcal{N}(H_{t}\theta_{t},R_{t})
+$$
+$$
+\theta_{t}  \sim  \mathcal{N}(F_{t}\theta_{t-1},\Sigma_{t})
+$$
+
+
+This set of equations relates to an algorithm known as the Kalman filter,
+ which is a way to estimate  $\theta_{t}$
+ given data  $y_{t}$
+ and an estimate of the previous state,  $\hat{\theta}_{t-1}$.
+ One way to think about the Kalman filter is that it is just as a hierarchical
+ model where we use probability manipulations to estimate 
+ $\theta_{t}$ over time and to make predictions into the future.
+
+And of course the distributions might not be normal.
+ Here one gets into more advanced variants on the Kalman filter.
+
+
+# Our first MCMC
+
+Markov chain Monte Carlo is a computational technique used to simulate a
+ sample from a posterior distribution. There are a variety of MCMC approaches.
+ 
+One basic strategy is called Gibbs sampling - it involves cycling through
+ the parameters and sampling from
+ 
+$$
+g(\theta_{1}|\theta_{2},\ldots,\theta_{p},y)
+$$
+$$
+g(\theta_{2}|\theta_{1},\theta_{3},\ldots,\theta_{p},y)
+$$
+$$
+\cdots
+$$
+$$
+g(\theta_{p}|\theta_{1},\ldots,\theta_{p-1},y)
+$$
+
+In this case,  $\theta$ would include ALL of the unknown parameters, both latent process values
+ and hyperparameters.
+
+Let's see an example of this.
+ We'll use a bivariate normal distribution to illustrate things.
+ Let's assume that we 'forget' that we know how to simulate directly from
+ a bivariate normal.
+ 
+Suppose we've done the math to figure out that 
+ 
+$$
+\theta_{1}|\theta_{2},y \sim  \mathcal{N}\left(\mu_{1}+\sigma_{1}\rho\frac{\theta_{2}-\mu_{2}}{\sigma_{2}},\sigma_{1}^{2}(1-\rho^{2})\right)
+$$
+$$
+\theta_{2}|\theta_{1},y  \sim  \mathcal{N}\left(\mu_{2}+\sigma_{2}\rho\frac{\theta_{1}-\mu_{1}}{\sigma_{1}},\sigma_{2}^{2}(1-\rho^{2})\right)
+$$
+
+where  $\mu_{1}=0$, $\mu_{2}=1$, $\sigma_{1}=\sigma_{2}=1$, $\rho=0.7$ are functions of  $y$.
+ This example is particularly useful because in many models, the posterior
+ distribution of  $\theta$ is approximately multivariate normal distributed.
+ 
+So let's set up a Gibbs sampler to draw samples from 
+ $g(\theta_{1},\theta_{2}|y)$
+
+```{r bivarNorm, fig.width=7}
+nIts <- 1000
+nPlot <- 40
+mu1 <- 0; mu2 <- 1; sig1 <- 1; sig2 <- 1; rho <- .7 
+store <- matrix(NA, nrow = nIts, ncol = 2)
+luckyStartingValues <- c(.1, 1.2)
+store[1, ] <- luckyStartingValues
+for(it in 2:nIts){
+	curTheta2 <- store[it-1, 2]
+	curTheta1 <- rnorm(1, mu1 + sig1*rho*(curTheta2 - mu2)/sig2, sig1*sqrt(1-rho^2))
+	curTheta2 <- rnorm(1, mu2 + sig2*rho*(curTheta1 - mu1)/sig1, sig2*sqrt(1-rho^2))
+	store[it, ] <- c(curTheta1, curTheta2)
+}
+
+# we know the 'true' 'posterior', so let's plot its contours to see how well we are doing
+library(mvtnorm, quietly = TRUE)
+gridLength <- 40
+grid1d <- seq(-8, 3, length = gridLength)
+grid2d <- expand.grid(grid1d, grid1d)
+densValues <- dmvnorm(grid2d, c(mu1, mu2), matrix(c(sig1^2, rho*sig1*sig2, rho*sig1*sig2, sig2^2), 2, 2))
+contour(grid1d, grid1d, matrix(densValues, gridLength))
+lines(store[1:nPlot, 1], store[1:nPlot, 2], col = 'blue')
+
+store2 <- matrix(NA, nrow = nIts, ncol = 2)
+unluckyStartingValues <- c(-6, -8)
+store2[1, ] <- unluckyStartingValues
+for(it in 2:nIts){
+	curTheta2 <- store2[it-1, 2]
+	curTheta1 <- rnorm(1, mu1 + sig1*rho*(curTheta2 - mu2)/sig2, sig1*sqrt(1-rho^2))
+	curTheta2 <- rnorm(1, mu2 + sig2*rho*(curTheta1 - mu1)/sig1, sig2*sqrt(1-rho^2))
+	store2[it, ] <- c(curTheta1, curTheta2)
+}
+lines(store2[1:nPlot, 1], store2[1:nPlot, 2], col = 'red')
+```
+
+
+
+Often when we want to use this sequential updating strategy, the conditional
+ distribution of a parameter is not a known distribution from which we can
+ easily sample.
+ In such cases, we often use Metropolis (or Metropolis-Hastings) sampling.
+ Other techniques such as adaptive rejection sampling are also used.
+ We won't go into these, but they are used 'under the hood' in BUGS and
+ other software.
+
+# Convergence and mixing of MCMC chains
+
+MCMC chains can suffer from two major problems:
+- The chain takes a long time to converge (bad starting values).
+- The chain has converged but is mixing slowly (the samples are highly dependent).
+
+We can take a look at these issues using 'trace plots' of the MCMC output.
+
+```{r convergence, fig.width=7}
+par(mfrow = c(2,2))
+subset <- 1:100
+tsplot <- function(vec, ...){
+	plot(1:length(vec), vec, xlab = 'index', ylab = '', ...)
+}
+
+tsplot(store[subset, 1], main = 'theta1, good start', type = 'l')
+tsplot(store[subset, 2], main = 'theta2, good start', type = 'l')
+tsplot(store2[subset, 1], main = 'theta1, bad start', type = 'l')
+tsplot(store2[subset, 2], main = 'theta2, bad start', type = 'l')
+```
+
+
+
+To deal with the (1) the convergence issues, we throw out the initial part
+ of the chain and don't use it to make our estimates.
+ In this case we only have to throw out a few values even with the bad starting
+ values, but in many situations, we need to throw out thousands of samples.
+ (2) Mixing is a problem because we have fewer effectively-independent samples.
+ Recall our discussion in the statistics module that if we have a large
+ sample from a distribution, that sample is a good representation of the
+ distribution.
+ If we have a small sample, it may not be.
+ When we have highly-correlated samples we don't have as good a representation
+ as when the samples are independent.
+
+Two of the main causes of convergence and mixing problems are bad starting
+ values and high correlation between parameters.
+ There are strategies for 'blocking' parameters that try to allow the parameters
+ to explore the parameter space in a way that respects the correlation.
+ I'll illustrate this on the board.
+
+
+# Using the output of MCMC chains
+
+
+
+The basic story here is that the chain output is a sample from the posterior
+ (provided we've thrown away values from the burn-in period).
+ We can use the sample to approximate the posterior mean, posterior sd,
+ and posterior quantiles.
+
+```{r usingPosterior}
+library(coda, quietly = TRUE) # a package for manipulating MCMC output
+nonBurn <- 100:nIts  # conservative in this case
+use <- store[nonBurn, ]
+ess1 <- effectiveSize(use[, 1])
+ess2 <- effectiveSize(use[, 2])
+postMean <- colMeans(use)
+postSD <- apply(use, 2, sd)
+uncIntervals <- apply(use, 2, quantile, c(.025, .975))
+postCorr <- cor(use[, 1], use[ , 2])
+postMean; postSD; uncIntervals; postCorr
+```
+
+
+
+Apart from our posterior correlation estimate, the other quantities we calculated represent the marginal posteriors:  $g(\theta_{1}|y)$
+ and  $g(\theta_{2}|y)$. In this context we can just ignore the samples of the parameters we are
+ not interested in.
+ We're generally not interested in conditional posteriors such as 
+ $g(\theta_{1}|\theta_{2},y)$, but if we were, we could have just fixed 
+ $\theta_{2}$ at the value we want to condition on.
+
+MCMC output provides a huge amount of flexibility.
+ If I am interested in some function of  $\theta$, I can just find the function of each of the samples, and that gives me a sample of the function.
+ Suppose  $\theta_{1}$
+ was on the log scale and I want it on the original scale.
+
+
+
+```{r posteriorFunctionals}
+derivedQuant <- exp(use[ , 1])
+postMeanDerived <- mean(derivedQuant)
+postCIsDerived <- quantile(derivedQuant, c(.025, .975))
+postMeanDerived; postCIsDerived
+```
+
+
