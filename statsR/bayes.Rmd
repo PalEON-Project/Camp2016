@@ -428,7 +428,7 @@ Often when we want to use this sequential updating strategy, the conditional
  easily sample.
  In such cases, we often use Metropolis (or Metropolis-Hastings) sampling.
  Other techniques such as adaptive rejection sampling are also used.
- We won't go into these, but they are used 'under the hood' in BUGS and
+ We won't go into these, but they are used 'under the hood' in JAGS and
  other software.
 
 # Convergence and mixing of MCMC chains

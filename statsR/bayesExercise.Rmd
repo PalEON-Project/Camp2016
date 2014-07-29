@@ -1,0 +1,46 @@
+# PalEON Summer Course: Bayesian exercise
+## August 2014
+## Chris Paciorek
+
+For this session, we'll work on a hands-on project in Bayesian modeling with JAGS that will lead directly into the ecosystem modeling work, in which Mike will show how results of this kind of modeling is used for data assimilation.
+
+The idea is to statistically model tree DBH and growth using the tree ring data that you collected earlier this week.  As preparation for the course, we asked you to read the Clark et al. (2007) paper. We'll now implement a model of that sort on the tree ring data. 
+
+Let's consider the following model. Let $D_{it}^O$ be the observed diameter for tree $i$ at time $t$ and $X_{it}^O$ be the observed diameter increment for that same tree. Let $D_{it}$ and $X_{it}$ be the true diameter and ring width increment for the tree. 
+
+$$
+\log(D_{it}^O) \sim \mathcal{N}(\log(D_{it}), w)
+$$
+$$
+\log(X_{it}^O) \sim \mathcal{N}(\log(X_{it}), v)
+$$
+$$
+\log(X_{it}) = \beta_0 + \beta_i + \beta_t + \epsilon_{it}
+$$
+$$
+D_{i,t+1} = X_{it} + D_{it}
+$$
+$$
+\beta_0 \sim \mathcal{N}(0, 10000)  
+$$
+$$
+\beta_i \sim \mathcal{N}(0, \tau^2)
+$$
+$$
+\beta_t \sim \mathcal{N}(0, v_t)
+$$
+$$
+\epsilon_{it} \sim \mathcal{N}(0, \sigma^2)
+$$
+
+1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $v_t$. How about $w$ and $v$?
+
+2. What priors do we need to complete the model?
+
+3. If we set $v_t$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $v_t$ and estimating $v_t$?
+
+4. What aspects of the real world does the model not account for?
+
+5. Implement the model in JAGS. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I'd suggest using flat priors on the standard deviation for the variance terms in the model.
+
+6. Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components?

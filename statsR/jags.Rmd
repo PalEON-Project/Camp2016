@@ -6,7 +6,7 @@
 In this module, we'll do some hands-on work to fit a time series model via MCMC with JAGS. 
 
 
-Let's work through our mixed model example and the DLM example using
+Let's work through our mixed model example and the HMM example using
 JAGS (or BUGS).
 
 
@@ -115,7 +115,7 @@ the statistical model is a good model for the data).
 First I'll generate fake data (i.e., simulating from the forward model,
 as we did yesterday).
 
-```{r generate_DLM}
+```{r generate_HMM}
 nT <- 100
 n <- 50
 theta0 <- 0.2
@@ -124,7 +124,7 @@ tau <- 0.2
 logit <- function(x) log(x/(1-x))
 expit <- function(x) exp(x) / (1+exp(x))
 
-genDLM <- function(mu = 0, rho = 1, tau, theta0, n, nT) {
+genHMM <- function(mu = 0, rho = 1, tau, theta0, n, nT) {
   if(length(n) == 1) n <- rep(n, nT)
   theta <- logitTheta <- y <- rep(0, nT)
   for(i in seq_len(nT)) {
@@ -139,7 +139,7 @@ genDLM <- function(mu = 0, rho = 1, tau, theta0, n, nT) {
 }
 
 set.seed(0)
-out <- genDLM(rho = .95, mu = -1, tau = tau, theta0 = theta0, n = n, nT = nT)
+out <- genHMM(rho = .95, mu = -1, tau = tau, theta0 = theta0, n = n, nT = nT)
 n <- out[ , 1]
 y <- out[ , 2]
 theta <- out[ , 3]
@@ -147,8 +147,8 @@ theta <- out[ , 3]
 
 Here's the BUGS code for the model. 
 
-```{r dlmFake}
-dlmFake <- function(){
+```{r hmmFake}
+hmmFake <- function(){
 	# (hyper)priors
         mu ~ dunif(-5, 5)
         rho ~ dunif(-1, 1)
@@ -171,9 +171,9 @@ dlmFake <- function(){
 
 Now fit the model using JAGS and look at the fits.
 
-```{r fit_dlmFake}
+```{r fit_hmmFake}
 out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('theta', 'mu', 'rho', 'tau'), 
-	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = dlmFake, DIC = FALSE)
+	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmmFake, DIC = FALSE)
 out.mcmc <- as.mcmc(out)[[1]]
 colNames <- dimnames(out.mcmc)[[2]]
 whichTheta <- grep('theta', colNames)
@@ -220,7 +220,7 @@ inits <- function(){
 }
 # see the documentation for jags()
 out <- jags(data = list(nT = nT, n = n, y = y), inits = inits, parameters.to.save = c('mu', 'tau', 'rho'), 
-	n.thin = 1, n.chains = 3, n.iter = 1000, n.burnin = 0, model.file = dlmFake, DIC = FALSE)
+	n.thin = 1, n.chains = 3, n.iter = 1000, n.burnin = 0, model.file = hmmFake, DIC = FALSE)
 traceplot(out, mfrow = c(1, 3), ask = FALSE)
 ```
 
@@ -247,8 +247,8 @@ Here's the BUGS code for the model.
 
 [add mu and rho here]
 
-```{r dlm, eval=FALSE}
-dlm <- function(){
+```{r hmm, eval=FALSE}
+hmm <- function(){
 	logitTheta0 ~ dnorm(0, .000001)	
 	tau ~ dunif(0, 100)
 	tau2Inv <- 1/(tau^2)
@@ -266,9 +266,9 @@ dlm <- function(){
 
 And let's fit the model.
 
-```{r fit_dlm, eval=FALSE}
+```{r fit_hmm, eval=FALSE}
 out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('tau', 'theta'), 
-	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = dlm, DIC = FALSE)
+	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmm, DIC = FALSE)
 out.mcmc <- as.mcmc(out)
 thetaHat <- sub$oak/sub$n
 plot(sub$calAge, thetaHat, col = 'red')
@@ -284,10 +284,13 @@ abline(v = 1650 - 1950, col = 'grey')
 
 # Next steps
 
-- Challenge: How we would code up a model that treats depth
+- Discussion questions
+  + How we would code up a model that treats depth
 or radiocarbon years as the time index and correctly accounts for
 the irregular spacing of data.
-- Challenge: Let's consider some of the aspects of the data
+  + Let's consider some of the aspects of the data
 and the scientific context that have been left out of our model for
 pollen. 
-
+- Practice problems   
+  + Change the prior on $\tau$ (currently uniform, as recommended in Gelman (2006; Bayesian Analysis 1:515)) to be an inverse-gamma prior on $\tau^2$ with parameters 0.001 and 0.001. Assess whether the inference changes for either $\tau$ or the species composition.
+  + Rework the JAGS code for Tower Lake to use radiocarbon years as the time index.
