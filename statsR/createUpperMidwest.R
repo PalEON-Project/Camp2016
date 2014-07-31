@@ -2,6 +2,8 @@
 #### Chris Paciorek and Simon Goring
 #### July 2014
 
+setwd(file.path('data', 'upperMidwest'))
+
 ### PLS data
 
 ## preparatory step: download westerncompv0.3.csv from Wiki
@@ -49,8 +51,8 @@ library(neotoma)
 library(rgdal)
 library(neotoma)
 
-#  These are the sites around UNDERC and Tower Hill Lake.
-#  This gives us 46 records (on 25 July, 2014)
+##  These are the sites around UNDERC and Tower Hill Lake.
+##  This gives us 46 records (on 25 July, 2014)
 boundingBox <- c(-92, 44, -85, 48)
 
 boxSites <- get_dataset(loc = boundingBox, datasettype = 'pollen')
@@ -69,7 +71,7 @@ pollen <- as.data.frame(allData)
 pollen$x <- coordinates(tmp)[ , 1]
 pollen$y <- coordinates(tmp)[ , 2]
 
-transTable <- read.csv('pollenTranslation.csv', stringsAsFactors = FALSE)
+transTable <- read.csv(file.path('..', '..', 'pollenTranslation.csv'), stringsAsFactors = FALSE)
 
 omit <- transTable$latin[transTable$common == 'omit']
 
@@ -94,8 +96,11 @@ for(nm in toConvert) {
   }
   pollen[nm] <- NULL
 }
-  
-#  write.csv(all.data.frame, 'data/all_site_df.csv')
+
+## downloaded July 31 10:30 am PDT
+write.table(pollen, file = 'pollenTimeSeries.csv', quote = FALSE, sep = ",", row.names = FALSE)
+
+### Pollen at settlement time
 
 pollenBySite <- split(pollen, pollen$sitename)
 
@@ -117,16 +122,19 @@ getSettlement_oldVersion <- function(x) {
 settlementPollen <- sapply(pollenBySite, getSettlement)
 settlementPollen <- do.call(rbind, settlementPollen)
 
+write.table(settlementPollen, file = 'settlementPollen.csv', quote = FALSE, sep = ",", row.names = FALSE)
+
+
 ## older code from Simon
 
 #  We need to get the chroncontrol tables so we can assign pre-settlement:
 if(FALSE) {
-all.chronIDs <- sapply(all.sites, function(x)x$sample.meta$ChronologyID[1])
+  all.chronIDs <- sapply(all.sites, function(x)x$sample.meta$ChronologyID[1])
 
-chron.tables <- lapply(all.chronIDs, function(x)try(get_chroncontrol(x)))
-
-find_european <- function(x){
-  settlement <- which(x$chron.control$ControlType == 'European')
-}
+  chron.tables <- lapply(all.chronIDs, function(x)try(get_chroncontrol(x)))
+  
+  find_european <- function(x){
+    settlement <- which(x$chron.control$ControlType == 'European')
+  }
 }
 
