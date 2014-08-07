@@ -10,7 +10,9 @@ setwd(file.path('data', 'upperMidwest'))
 
 dat <- read.csv('westerncompv0.3.csv')
 
-coreTaxa <- c('ash', 'basswood', 'beech', 'birch', 'black.gum.sweet.gum', 'cedar.juniper', 'cherry', 'dogwood', 'elm', 'fir', 'hemlock', 'hickory', 'ironwood', 'maple', 'oak', 'pine', 'poplar.tulip.poplar', 'spruce', 'tamarack' , 'walnut', 'other.hardwood')
+coreTaxa <- c('ash', 'basswood', 'beech', 'birch', 'cedar.juniper', 'elm', 'fir', 'hemlock', 'hickory', 'ironwood', 'maple', 'oak', 'pine', 'poplar.tulip.poplar', 'spruce', 'tamarack' , 'walnut', 'other.hardwood')
+
+other <- c('alder', 'black.gum.sweet.gum', 'cherry', 'dogwood', 'buckeye', 'hackberry', 'locust', 'mulberry', 'unknown.tree', 'sycamore', 'willow')
 
 ## omit some columns (bald cypress because we have no "other conifer" category
 omit <- c("bald.cypress", "no.tree", "unknown")
@@ -29,6 +31,7 @@ dat <- dat[ , c('x', 'y', taxa)]
 
 write.table(dat, file = 'pls.csv', quote = FALSE, sep = ",", row.names = FALSE)
 
+stop()
 ### Pollen data from Neotoma
 
 #  Simon Goring - July 25, 2014
