@@ -18,6 +18,7 @@ We can read in data using the read.table() function, of which
 
 ```{r reading files}
 getwd()
+
 setwd('~/Desktop/Camp2014/statsR')
 # platform independent code:
 # setwd(file.path('~', 'Desktop', 'Camp2014', 'statsR')) 

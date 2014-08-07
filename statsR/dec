@@ -1,0 +1,1 @@
+openssl aes-128-cbc -d -salt -in $1.aes -out $1
