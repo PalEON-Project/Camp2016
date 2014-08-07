@@ -18,7 +18,7 @@ We can read in data using the read.table() function, of which
 
 ```{r reading files}
 getwd()
-setwd('~/Desktop/Camp2014/statsR')
+setwd('statsR')
 
 pollen <- read.csv('data/newEngland/modernPollen.csv', header = TRUE)
 ponds <- read.csv('data/newEngland/pondInfo.csv') 
