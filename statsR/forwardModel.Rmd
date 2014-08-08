@@ -19,7 +19,7 @@ Do the following calculations:
 
 # Simulation for a state space model
 
-A core model used in statistics for time series data is called a dynamic linear model (versions of this are also known as a hidden Markov model or a state space model). Here's a basic model that one might use for binomial data, such as pollen data for a single taxon, where $\mbox{logit}(\theta) = \log(\frac{\theta}{(1-\theta)})$:
+A core model used in statistics for time series data is called a dynamic linear model (versions of this are also known as a hidden Markov model or a state space model). Here's a basic model that one might use for binomial data, such as pollen data for a single taxon, where $\mbox{logit}(\theta) = \log(\frac{\theta}{1-\theta})$:
 
 $$ 
 \mbox{logit}(\theta_t)  \sim  N(\mbox{logit}(\theta_{t-1}), \tau^2)
@@ -33,4 +33,6 @@ Let's work on the following:
 
   1. Write a function that simulates a single time series of data and hidden states using the model above. Determine what arguments your function will need.
   2. Simulate many random time series using your function; plot the hidden states (as connected lines) for multiple time series to illustrate the behavior of the model. Use $tau=0.2$ and $\theta_0 = 0.2$ for simplicity.
-  3. Now let's do a very basic data assimilation. Using a large number of hidden state time series from part (b), calculate the log-likelihood of a time series of data that I will give you. The likelihood values (not on the log scale) are used to weight the hidden state time series (normalize these by the sum of the likelihood values across all the draws). Plot the hidden state series with the largest weights (we'll discuss how many to use), indicating the magnitude of the normalized weights somehow on the plot. Overlay the data. Congratulations, you've done a state variable data assimilation!
+  3. Now let's do a very basic data assimilation. Using a large number of hidden state time series from part (b), calculate the log-likelihood of the time series of data in the file *tsData.csv*, which has 20 time steps. The log-likelihood is just the log of the density of the data given the $\theta$ values. The likelihood values (not on the log scale) are used to weight the hidden state time series (normalize these by the sum of the likelihood values across all the draws). Plot a few of the hidden state series with the largest weights. Overlay the data. Congratulations, you've done a state variable data assimilation!
+
+Note: if you want to see how well you did, take a look at *tsHidden.csv*.

@@ -7,20 +7,20 @@ In this module, we'll cover the basics of Bayesian statistics, hierarchical
 
 # The Bayesian recipe: Likelihood, prior and posterior
 
-- **Prior**: $g(\theta)$ (a pdf or pmf) summarizes our beliefs about 
+- **Prior**: $p(\theta)$ (a pdf or pmf) summarizes our beliefs about 
 $\theta$ before we collect (or analyze) the dataset we have.
  $\theta$ might be a single thing or a vector of things.
-- **Posterior**: $g(\theta|Y_{1}=y_{1},\ldots,Y_{n}=y_{n})$
+- **Posterior**: $p(\theta|Y_{1}=y_{1},\ldots,Y_{n}=y_{n})$
  (a pdf or pmf) summarizes our new beliefs informed by the dataset.
-  + Generically, $g(\theta|y)$ where $y=\{y_{1},\ldots,y_{n}\}$
+  + Generically, $p(\theta|y)$ where $y=\{y_{1},\ldots,y_{n}\}$
  indicates the vector of data values.
   + Note that this is a conditional distribution, given the data, which is intuitive.
   + Our goal is to find the posterior mathematically and interpret it scientifically.
-- We use Bayes theorem to find  $g(\theta|y)$, making use of $f(y|\theta)$, by using a version of Bayes theorem for random variables rather than events:
+- We use Bayes theorem to find  $p(\theta|y)$, making use of $p(y|\theta)$, by using a version of Bayes theorem for random variables rather than events:
 $$
-g(\theta|Y=y)=\frac{f(y|\theta)g(\theta)}{g(y)}\propto f(y|\theta)g(\theta)
+p(\theta|Y=y)=\frac{p(y|\theta)p(\theta)}{p(y)}\propto p(y|\theta)p(\theta)
 $$
-- We use the likelihood, $f(y|\theta)$ (pdf or pmf of the data), to update the prior.
+- We use the likelihood, $p(y|\theta)$ (pdf or pmf of the data), to update the prior.
 
 # A basic example with binomial data
 
@@ -45,7 +45,7 @@ Ok, now the prior.
 
 Ok, once we have a prior and likelihood, we can get an expression proportional to the posterior distribution:
 $$
-g(\theta|y)  \propto  f(y|\theta)g(\theta)
+p(\theta|y)  \propto  p(y|\theta)p(\theta)
 $$
 $$
 \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;  =  {n \choose y}\theta^{y}(1-\theta)^{n-y}\cdot1
@@ -85,18 +85,30 @@ The mean and variance of the distribution are:
  As we change $\alpha$ and $\beta$, we get different beta
  distributions:
 
+```{r betaDists, fig.width=5}
+thetas <- seq(0, 1, length = 200)
+plot(thetas, dbeta(thetas, 6, 6), 
+     ylab = expression(p(theta)),
+     xlab = expression(theta), type = 'l',
+     ylim = c(0, 8))
+lines(thetas, dbeta(thetas, 30, 30), col = 'green')
+lines(thetas, dbeta(thetas, 8, 1), col = 'red')
+lines(thetas, dbeta(thetas, 2, 5), col = 'blue')
+```
+
+
 <center>![fig 1](plots/betaDist.png)</center>
 
 # Revisiting our example
 
-Recall we have the following: $g(\theta|y)\propto\theta^{y}(1-\theta)^{n-y}$
+Recall we have the following: $p(\theta|y)\propto\theta^{y}(1-\theta)^{n-y}$
 
 What is the distribution of  $\theta$?
 
-Suppose  $y=35$ and $n=100$.
+Suppose  $y=30$ and $n=100$.
 
 ```{r flatprior, fig.width=7}
-y <- 35; n <- 100
+y <- 30; n <- 100
 thetaSeq <- seq(0, 1, length = 200)
 lik <- dbinom(y, n, thetaSeq)
 prior <- rep(1, 200)
@@ -107,6 +119,7 @@ lines(thetaSeq, prior, col = 'red')
 lines(thetaSeq, lik*80, col = 'blue') # scaling of likelihood is arbitrary -- it's not a density for theta
 legend(0, 8, legend = c('prior', 'likelihood', 'post'), col = c('red','blue','black'), lty = rep(1,3), bty = 'n')
 ```
+
 That illustrated prior ignorance.
  Now suppose we think we know something about this location, and we have
  some idea about the proportion of oak in the forest.
@@ -122,7 +135,7 @@ For the moment (we'll see why in a minute), let's use a beta distribution
 Let's go back to likelihood times prior:
 
 $$
-g(\theta|y)  \propto  f(y|\theta)g(\theta)
+p(\theta|y)  \propto  p(y|\theta)p(\theta)
 $$
 $$
   =  {n \choose y}\theta^{y}(1-\theta)^{n-y}\frac{1}{B(\alpha,\beta)}\theta^{\alpha-1}(1-\theta)^{\beta-1}
@@ -139,7 +152,7 @@ $$
  $p$ now? What is the posterior expected value? What is the posterior variance?
 
 ```{r infPrior, fig.width=7}
-y <- 35; n <- 100
+y <- 30; n <- 100
 thetaSeq <- seq(0, 1, length = 200)
 lik <- dbinom(y, n, thetaSeq)
 alphaPrior <- 3; betaPrior <- 12
@@ -162,7 +175,7 @@ If we know the posterior as an actual distribution, we can use the posterior
  from the 2.5th and 97.5th percentiles of the distribution.
 
 ```{r posteriorInference, fig.width=7}
-y <- 35; n <- 100
+y <- 30; n <- 100
 alphaPost <- y+1; betaPost <- n-y+1
 qbeta(c(.025, .5, .975), alphaPost, betaPost)
 postMean <- alphaPost/(alphaPost + betaPost)
@@ -208,12 +221,12 @@ The most basic hierarchical model has a data layer, a single latent layer,
  and a layer of (hyper)parameters.
  Let's suppose we have data on rats in a laboratory (say some metabolite
  in blood), with each mother rat having multiple pups, and with us measuring
- some outcome on each pup.
+ the metabolite outcome on each pup.
  We want a model that accounts for the fact that pups within a litter are
  related.
  Option A would be to try to introduce some sort of correlation structure
  into how we model the data.
- But let's first consider an alternative, option B, that adds some variables
+ But let's first consider an alternative, Option B, that adds some variables
  to help guide our thinking about the process at hand.
 
 $$
@@ -302,15 +315,15 @@ The first equation is the likelihood, or the noise model.
  $t$ depends only on the process value at the previous time step.
  
 To complete the Bayesian model, we need prior distributions for the parameters
- and for the initial state, $g(\mu, \rho, \sigma^{2},\tau^{2},\theta_{0})$.
+ and for the initial state, $p(\mu, \rho, \sigma^{2},\tau^{2},\theta_{0})$.
 
 For the statistics module, you wrote code in R to simulate from a simplified version
  of this model.
  That 'forward' simulation took the parameters as known and simulated data
  that might be generated from such a model.
  Our Bayesian analysis in the simple binomial model for oak pollen above
- did the reverse: it took the data and a model structure and tried to reconstruc
-t what the plausible values of the unknown parameters and latent values
+ did the reverse: it took the data and a model structure and tried to reconstruct
+ what the plausible values of the unknown parameters and latent values
  are.
  Thus our Bayesian statistical analysis is also known as an 'inverse' problem.
 
@@ -338,7 +351,7 @@ This set of equations relates to an algorithm known as the Kalman filter,
  $\theta_{t}$ over time and to make predictions into the future.
 
 And of course the distributions might not be normal.
- Here one gets into more advanced variants on the Kalman filter.
+ In that case one gets into more advanced variants on the Kalman filter.
 
 
 # Our first MCMC
@@ -350,16 +363,16 @@ One basic strategy is called Gibbs sampling - it involves cycling through
  the parameters and sampling from
  
 $$
-g(\theta_{1}|\theta_{2},\ldots,\theta_{p},y)
+p(\theta_{1}|\theta_{2},\ldots,\theta_{p},y)
 $$
 $$
-g(\theta_{2}|\theta_{1},\theta_{3},\ldots,\theta_{p},y)
+p(\theta_{2}|\theta_{1},\theta_{3},\ldots,\theta_{p},y)
 $$
 $$
 \cdots
 $$
 $$
-g(\theta_{p}|\theta_{1},\ldots,\theta_{p-1},y)
+p(\theta_{p}|\theta_{1},\ldots,\theta_{p-1},y)
 $$
 
 In this case,  $\theta$ would include ALL of the unknown parameters, both latent process values
@@ -384,7 +397,7 @@ where  $\mu_{1}=0$, $\mu_{2}=1$, $\sigma_{1}=\sigma_{2}=1$, $\rho=0.7$ are funct
  distribution of  $\theta$ is approximately multivariate normal distributed.
  
 So let's set up a Gibbs sampler to draw samples from 
- $g(\theta_{1},\theta_{2}|y)$
+ $p(\theta_{1},\theta_{2}|y)$
 
 ```{r bivarNorm, fig.width=7}
 nIts <- 1000
@@ -427,7 +440,7 @@ Often when we want to use this sequential updating strategy, the conditional
  distribution of a parameter is not a known distribution from which we can
  easily sample.
  In such cases, we often use Metropolis (or Metropolis-Hastings) sampling.
- Other techniques such as adaptive rejection sampling are also used.
+ Other techniques such as slice sampling or adaptive rejection sampling are also used.
  We won't go into these, but they are used 'under the hood' in JAGS and
  other software.
 
@@ -497,11 +510,11 @@ postMean; postSD; uncIntervals; postCorr
 
 
 
-Apart from our posterior correlation estimate, the other quantities we calculated represent the marginal posteriors:  $g(\theta_{1}|y)$
- and  $g(\theta_{2}|y)$. In this context we can just ignore the samples of the parameters we are
+Apart from our posterior correlation estimate, the other quantities we calculated represent the marginal posteriors:  $p(\theta_{1}|y)$
+ and  $p(\theta_{2}|y)$. In this context we can just ignore the samples of the parameters we are
  not interested in.
  We're generally not interested in conditional posteriors such as 
- $g(\theta_{1}|\theta_{2},y)$, but if we were, we could have just fixed 
+ $p(\theta_{1}|\theta_{2},y)$, but if we were, we could have just fixed 
  $\theta_{2}$ at the value we want to condition on.
 
 MCMC output provides a huge amount of flexibility.

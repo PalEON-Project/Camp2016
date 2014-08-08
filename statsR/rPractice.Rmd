@@ -38,4 +38,3 @@ the pond-level information, as in the pondInfo.csv file in the New England data.
 to be a two-column matrix of 'successes' and 'failures'. Does the statistical model
 suggest that some of the temporal fluctuations are real fluctuations or noise in the data?
 
-[[[ Glimmer shows 6k increase in Tsuga and then decline; what about Tower re: Tsuga and Fagus? check with JWW/STJ on what events to focus on wrt interpreting output of stat model; as fall back see if Tsuga rise (to 15 count) and decline seems robust]]]

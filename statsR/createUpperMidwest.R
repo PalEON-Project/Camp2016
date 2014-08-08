@@ -6,9 +6,9 @@ setwd(file.path('data', 'upperMidwest'))
 
 ### PLS data
 
-## preparatory step: download westerncompv0.3.csv from Wiki
+## preparatory step: download westerncompv0.3-1.csv from Wiki
 
-dat <- read.csv('westerncompv0.3.csv')
+dat <- read.csv('westerncompv0.3-1.csv')
 
 coreTaxa <- c('ash', 'basswood', 'beech', 'birch', 'cedar.juniper', 'elm', 'fir', 'hemlock', 'hickory', 'ironwood', 'maple', 'oak', 'pine', 'poplar.tulip.poplar', 'spruce', 'tamarack' , 'walnut', 'other.hardwood')
 

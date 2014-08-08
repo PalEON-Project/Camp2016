@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>PalEON Summer Course: Forward model module</title>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>PalEON Summer Course: Forward model module</h1>
+
+<h2>August 2014</h2>
+
+<h2>Chris Paciorek</h2>
+
+<p>In this module, we&#39;ll do some hands-on work to simulate data from a model.</p>
+
+<p>First we&#39;ll practice a bit with joint distributions, following on our work in the last model on statistics and probability. </p>
+
+<h1>Practice with joint distributions</h1>
+
+<p>The values in <code>drawsOak.csv</code> are 250 draws from a multivariate distribution (we&#39;ll tell you what they actually are after we do the Bayes module). In this case, these are the estimated composition of oak at two nearby locations in Massachusetts based on Paciorek &amp; McLachlan (2009). The first column is location 1 in 1750, the second column location 2 in 1750 and the third column location 1 in 1850. </p>
+
+<p>Do the following calculations:</p>
+
+<ol>
+<li>Using these draws as a representative sample from the underlying distribution, make plots and calculate summary statistics that estimate the marginal distributions of each of the three variables. </li>
+<li>Next illustrate the bivariate relationship between the oak composition variables. </li>
+<li>Next estimate the mean difference between the oak composition at the two locations in 1750, the standard deviation of that difference, and a 95% interval (2.5 to 97.5th percentiles of the draws). Consider whether two 95% intervals for the two oak variables computed separately seem to tell a different story than the 95% interval for the difference. </li>
+</ol>
+
+<h1>Simulation for a state space model</h1>
+
+<p>A core model used in statistics for time series data is called a dynamic linear model (versions of this are also known as a hidden Markov model or a state space model). Here&#39;s a basic model that one might use for binomial data, such as pollen data for a single taxon, where \(\mbox{logit}(\theta) = \log(\frac{\theta}{1-\theta})\):</p>
+
+<p>\[ 
+\mbox{logit}(\theta_t)  \sim  N(\mbox{logit}(\theta_{t-1}), \tau^2)
+\]
+\[
+y_{t}  \sim  \mbox{Binom}(n_{t},\theta_{t}).
+\]</p>
+
+<p>Let&#39;s work on the following:</p>
+
+<ol>
+<li>Write a function that simulates a single time series of data and hidden states using the model above. Determine what arguments your function will need.</li>
+<li>Simulate many random time series using your function; plot the hidden states (as connected lines) for multiple time series to illustrate the behavior of the model. Use \(tau=0.2\) and \(\theta_0 = 0.2\) for simplicity.</li>
+<li>Now let&#39;s do a very basic data assimilation. Using a large number of hidden state time series from part (b), calculate the log-likelihood of the time series of data in the file <em>tsData.csv</em>, which has 20 time steps. The log-likelihood is just the log of the density of the data given the \(\theta\) values. The likelihood values (not on the log scale) are used to weight the hidden state time series (normalize these by the sum of the likelihood values across all the draws). Plot a few of the hidden state series with the largest weights. Overlay the data. Congratulations, you&#39;ve done a state variable data assimilation!</li>
+</ol>
+
+<p>Note: if you want to see how well you did, take a look at <em>tsHidden.csv</em>.</p>
+
+</body>
+
+</html>
