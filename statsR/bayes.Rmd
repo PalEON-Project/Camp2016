@@ -85,7 +85,7 @@ The mean and variance of the distribution are:
  As we change $\alpha$ and $\beta$, we get different beta
  distributions:
 
-```{r betaDists, fig.width=5}
+```{r betaDists, fig.width=7}
 thetas <- seq(0, 1, length = 200)
 plot(thetas, dbeta(thetas, 6, 6), 
      ylab = expression(p(theta)),
@@ -96,8 +96,6 @@ lines(thetas, dbeta(thetas, 8, 1), col = 'red')
 lines(thetas, dbeta(thetas, 2, 5), col = 'blue')
 ```
 
-
-<center>![fig 1](plots/betaDist.png)</center>
 
 # Revisiting our example
 

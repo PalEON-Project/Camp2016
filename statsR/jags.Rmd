@@ -5,18 +5,16 @@
 
 In this module, we'll do some hands-on work to fit a time series model via MCMC with JAGS. 
 
+Recall our mixed model (rat pups) and HMM. 
+Let's work through fitting such models using
+JAGS (this could also be done in BUGS).
 
-Let's work through our mixed model example and the HMM example using
-JAGS (or BUGS).
-
-
-\subsection{Mixed model}
 
 Here we'll use simulated data.
 
 ```{r mixedModelData}
 theta <- 2
-sig <- 2
+sigma <- 2
 nMoms <- 10
 
 ## IGNORE THE MAN BEHIND THE CURTAIN ####
@@ -24,23 +22,25 @@ set.seed(0)
 mus <- rgamma(nMoms, shape = 2, scale = 1)
 nPups <- rbinom(nMoms, 15, prob = .4) 
 momIds <- rep(1:nMoms, times = nPups)
-y <- rnorm(sum(nPups), mus[momIds], sig)
+y <- rnorm(sum(nPups), mus[momIds], sigma)
 n <- sum(nPups)
 ## IGNORE THE CODE ABOVE
 ```
 
-Here's the BUGS code for the model.
+Here's the JAGS code for the model. Note that the normal distribution in JAGS is in terms of 
+the precision (one over the variance), so our code uses `dnorm()` differently than we do in R 
+(which is in terms of the standard deviation).
 
 ```{r bugsCode_mixedModel}
 ### model function (note this looks like R code but is really JAGS code for defining a model
 mixedModel <- function(){
   # (hyper)priors
-  sig ~ dunif(0, 100)
+  sigma ~ dunif(0, 100)
   tau ~ dunif(0, 100)
   theta ~ dnorm(0,.00001)
   # some transformations to get precisions from sd's
   tau2Inv <- 1/(tau^2)
-  sig2Inv <- 1/(sig^2)
+  sigma2Inv <- 1/(sigma^2)
   # latent value layer
   for(i in 1:nMoms){
     mus[i] ~ dnorm(theta, tau2Inv)
@@ -48,7 +48,7 @@ mixedModel <- function(){
   # likelihood
   for(j in 1:n)
     {
-      y[j] ~ dnorm(mus[momIds[j]], sig2Inv)
+      y[j] ~ dnorm(mus[momIds[j]], sigma2Inv)
     }
 }
 ```
@@ -58,7 +58,7 @@ Here's how we run it from R.
 ```{r run_mixed}
 require(R2jags, quietly = TRUE) 
 out <- jags(data = list(y = y, n = n, nMoms = nMoms, momIds = momIds),
-  parameters.to.save = c('theta','sig','tau', 'mus'), n.chains = 1,
+  parameters.to.save = c('theta','sigma','tau', 'mus'), n.chains = 1,
   n.iter = 2000, n.burnin = 1000, model.file = mixedModel, DIC = FALSE)
 ```
 
@@ -67,42 +67,43 @@ A few things to check to see if the MCMC is performing well:
 - Look at the trace plots and see if the initial part of the chain looks
 similar to the later part. If not, you need a longer burn-in period.
 - Look at the trace plots and see if the chain is mixing. We want to
-see rapid movement up and down, not slow excursions.
+see rapid movement up and down, not slow excursions. Calculate effective sample sizes.
 - See if there are any posterior correlations between parameters that
 are near 1 or -1, which indicate trading off between parameters.
 - Run the model with multiple chains (with different starting values)
 and see that all the chains converge to the same posterior distribution.
 \end{enumerate}
 
-Let's look at some figures that illustrate these checks.
+Let's look at some figures that illustrate these checks. (I'm not 
+putting these plots in the HTML, but we'll see them in R.)
 
 ```{r mixed_diagnostics, eval=FALSE}
 out.mcmc <- as.mcmc(out)[[1]]
 plot(out.mcmc)
 crosscorr.plot(out.mcmc)
 mu1 <- c(out.mcmc[ , 1])
-sig <- c(out.mcmc[ , 11])
+sigma <- c(out.mcmc[ , 11])
 tau <- c(out.mcmc[ , 12])
 theta <- c(out.mcmc[ , 13])
 plot(mu1, theta)
-plot(sig, tau)
+plot(sigma, tau)
 ```
 
-For the sake of time, I'll leave out the use of multiple chains, but it is 
-a very good idea in general.
+For the sake of time, I'll leave out the use of multiple chains and effective sample sizes, but these are 
+very good ideas in general.
 
 # HMM for pollen
 
-In the statistics module, we worked on a HMM with a binomial model
+In the forward model module, we worked on a HMM with a binomial model
 for the data (the likelihood) and a random walk Markov model on the
 logit scale as our model for the latent process. Now we're going to
-make that model a bit more sophisticated.
+make that model a bit more sophisticated, building on the HMM we saw in the Bayes module.
 
-$$ 
-\mbox{logit}(\theta_t)  \sim  N(\mu + \rho (\mbox{logit}(\theta_{t-1}) - \mu), \tau^2)
-$$
 $$
 y_{t}  \sim  \mbox{Binom}(n_{t},\theta_{t}).
+$$
+$$ 
+\mbox{logit}(\theta_t)  \sim  N(\mu + \rho (\mbox{logit}(\theta_{t-1}) - \mu), \tau^2)
 $$
 
 $\mu$ allows the model to have an arbitrary overall mean, while $\rho$ controls the auto-correlation over time.
@@ -124,7 +125,7 @@ tau <- 0.2
 logit <- function(x) log(x/(1-x))
 expit <- function(x) exp(x) / (1+exp(x))
 
-genHMM <- function(mu = 0, rho = 1, tau, theta0, n, nT) {
+simHMM <- function(nT, n, mu = 0, rho = 1, tau, theta0) {
   if(length(n) == 1) n <- rep(n, nT)
   theta <- logitTheta <- y <- rep(0, nT)
   for(i in seq_len(nT)) {
@@ -135,14 +136,14 @@ genHMM <- function(mu = 0, rho = 1, tau, theta0, n, nT) {
     }
     y[i] <- rbinom(1, n[i], expit(logitTheta[i]))
   }
-  return(cbind(n, y, expit(logitTheta)))
+  return(data.frame(n = n, y = y, theta = expit(logitTheta)))
 }
 
 set.seed(0)
-out <- genHMM(rho = .95, mu = -1, tau = tau, theta0 = theta0, n = n, nT = nT)
-n <- out[ , 1]
-y <- out[ , 2]
-theta <- out[ , 3]
+out <- simHMM(n = n, nT = nT, rho = .95, mu = -1, tau = tau, theta0 = theta0)
+n <- out$n
+y <- out$y
+theta <- out$theta
 ```
 
 Here's the BUGS code for the model. 
@@ -171,7 +172,7 @@ hmmFake <- function(){
 
 Now fit the model using JAGS and look at the fits.
 
-```{r fit_hmmFake}
+```{r fit_hmmFake, fig.width=7}
 out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('theta', 'mu', 'rho', 'tau'), 
 	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmmFake, DIC = FALSE)
 out.mcmc <- as.mcmc(out)[[1]]
@@ -212,8 +213,9 @@ Note: in this model, both $\rho$ and $\tau^{2}$ determine how quickly the proces
 changes over time. Smaller values of $\rho$ and larger values of $\tau$  allow more jumpiness while the reverse force smoother change.
 
 Let's also see how we can choose or generate our own starting values. (See the help on `jags()` for how to set specific initial values.)
+I didn't include the output in the HTML, but we can see it in R.
 
-```{r own_start}
+```{r own_start, eval=FALSE}
 # with a function
 inits <- function(){
 	list('mu' = runif(1, -3, 3), 'rho' = runif(1, 0.5, 1), 'tau' = runif(1, .01, 5), 'logitTheta' = rnorm(nT, 0, 3)) 
@@ -224,63 +226,75 @@ out <- jags(data = list(nT = nT, n = n, y = y), inits = inits, parameters.to.sav
 traceplot(out, mfrow = c(1, 3), ask = FALSE)
 ```
 
-Finally let's do an initial fit to real data from Tower Lake,
+Finally let's do an initial fit to real data from Glimmerglass Lake,
 which we've already worked with some. First we'll read in the data.
-% (formerly Aino)
+
 
 ```{r read_data}
-data <- read.csv('data/newEngland/PollenTimeSeries.csv')
-#data <- read.csv('data/upperMidwest/towerLake.csv')
-names(data)[4] <- "calAge"
-sub <- subset(data, sitename == 'aino')
-sub$calAge <- -sub$calAge
-sub <- sub[order(sub$calAge), ]
-sub$n <- rowSums(sub[ , 5:14])
-nT <- nrow(sub)
-plot(sub$calAge, sub$oak/sub$n)
-y <- sub$oak
-n <- round(sub$n)
+data <- read.csv('data/upperMidwest/pollenTimeSeries.csv')
+glimmer <- data[data$sitename == "Glimmerglass Lake", ]
+glimmer$age <- -glimmer$age
+glimmer <- glimmer[order(glimmer$age), ]
+glimmer$n <- rowSums(glimmer[ , 12:ncol(glimmer)])
+nT <- nrow(glimmer)
+plot(glimmer$age, glimmer$hemlock/glimmer$n)
+lines(glimmer$age, glimmer$hemlock/glimmer$n)
+y <- glimmer$hemlock
+n <- round(glimmer$n)
 ```
 
 
 Here's the BUGS code for the model. 
 
-[add mu and rho here]
-
-```{r hmm, eval=FALSE}
+```{r hmm}
 hmm <- function(){
+  mu ~ dunif(-5, 5)
+  rho ~ dunif(-1, 1)
+  tau ~ dunif(0, 100)
 	logitTheta0 ~ dnorm(0, .000001)	
-	tau ~ dunif(0, 100)
-	tau2Inv <- 1/(tau^2)
-
-	logitTheta[1] ~ dnorm(logitTheta0, tau2Inv)
-    theta[1] <- exp(logitTheta[1])/(1+exp(logitTheta[1]))
-    y[1] ~ dbin(theta[1], n[1])
+  tau2Inv <- 1/(tau^2)
+    
+	# latent process evolution and likelihood
+	logitTheta[1] ~ dnorm(mu + rho*(logitTheta0 - mu), tau2Inv)
+  theta[1] <- exp(logitTheta[1])/(1+exp(logitTheta[1]))  
+  y[1] ~ dbin(theta[1], n[1])
 	for(i in 2:nT){
-		logitTheta[i] ~ dnorm(logitTheta[i-1], tau2Inv)
+		logitTheta[i] ~ dnorm(mu + rho*(logitTheta[i-1] - mu), tau2Inv)
 		theta[i] <- exp(logitTheta[i])/(1+exp(logitTheta[i]))
 		y[i] ~ dbin(theta[i], n[i])
 	}
 }
 ```
 
-And let's fit the model.
+And let's fit the model. 
 
-```{r fit_hmm, eval=FALSE}
-out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('tau', 'theta'), 
+```{r fit_hmm, fig.width=7}
+out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('rho', 'tau', 'theta'), 
 	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmm, DIC = FALSE)
-out.mcmc <- as.mcmc(out)
-thetaHat <- sub$oak/sub$n
-plot(sub$calAge, thetaHat, col = 'red')
-lines(sub$calAge, colMeans(out.mcmc)[seq_len(nT)], col = 'blue')
-quants <- apply(out.mcmc[ , seq_len(nT)], 2, quantile, c(.025, .975))
-polygon(cbind(c(sub$calAge, rev(sub$calAge), sub$calAge[1]), c(quants[1, ], 
+out.mcmc <- as.mcmc(out)[[1]]
+thetaHat <- glimmer$hemlock/glimmer$n
+
+colNames <- dimnames(out.mcmc)[[2]]
+whichTheta <- grep('theta', colNames)
+thetaPost <- out.mcmc[201:1000 , whichTheta]
+thetaNames <- dimnames(thetaPost)[[2]]
+index <- gsub("theta\\[", "", thetaNames)
+index <- as.numeric(gsub("\\]", "", index))
+thetaPost <- thetaPost[ , order(index)]
+
+par(mfrow = c(1,1))
+plot(glimmer$age, thetaHat, col = 'red')
+quants <- apply(thetaPost, 2, quantile, c(.025, .975))
+polygon(cbind(c(glimmer$age, rev(glimmer$age), glimmer$age[1]), c(quants[1, ], 
 	rev(quants[2, ]), quants[1, 1])), border = NA, col = 'lightblue')
-lines(sub$calAge, thetaHat, col = 'red')
-lines(sub$calAge, colMeans(out.mcmc)[seq_len(nT)], col = 'blue')
-title('oak at Aino Pond, MA')
+lines(glimmer$age, thetaHat, col = 'red')
+points(glimmer$age, thetaHat, col = 'red')
+lines(glimmer$age, colMeans(thetaPost), col = 'blue')
+title('hemlock at Glimmerglass Lake')
 abline(v = 1650 - 1950, col = 'grey')
 ```
+
+We'll check the mixing in R and see that this chain has not run for nearly long enough.
 
 # Next steps
 
@@ -292,5 +306,5 @@ the irregular spacing of data.
 and the scientific context that have been left out of our model for
 pollen. 
 - Practice problems   
-  + Change the prior on $\tau$ (currently uniform, as recommended in Gelman (2006; Bayesian Analysis 1:515)) to be an inverse-gamma prior on $\tau^2$ with parameters 0.001 and 0.001. Assess whether the inference changes for either $\tau$ or the species composition.
-  + Rework the JAGS code for Tower Lake to use radiocarbon years as the time index.
+  + Change the prior on $\tau$ (currently uniform, as recommended in Gelman (2006; Bayesian Analysis 1:515)) to be an gamma prior on $\tau^2$ with parameters 0.001 and 0.001. Assess whether the inference changes for either $\tau$ or the species composition.
+  + (Advanced) Rework the JAGS code for Glimmerglass Lake to use radiocarbon years as the time index.
