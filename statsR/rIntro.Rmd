@@ -306,7 +306,7 @@ library(foreign)
 
 You can save your code in text files and read it all in at once, using `source()`: e.g.,
 ```{r source}
-source(file.path('code', 'silly.R'))
+source('silly.R')
 ```
 
 You can save some or all of your objects in a compressed R data file
