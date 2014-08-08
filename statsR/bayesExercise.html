@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>PalEON Summer Course: Bayesian exercise</title>
+
+
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>PalEON Summer Course: Bayesian exercise</h1>
+
+<h2>August 2014</h2>
+
+<h2>Chris Paciorek</h2>
+
+<p>For this session, we&#39;ll work on a hands-on project in Bayesian modeling with JAGS that will lead directly into the ecosystem modeling work, in which Mike will show how results of this kind of modeling is used for data assimilation.</p>
+
+<p>The idea is to statistically model tree DBH and growth using the tree ring data that you collected earlier this week.  As preparation for the course, we asked you to read the Clark et al. (2007) paper. We&#39;ll now implement a model of that sort on the tree ring data. </p>
+
+<p>Let&#39;s consider the following model. Let \(D_{it}^O\) be the observed diameter for tree \(i\) at time \(t\) and \(X_{it}^O\) be the observed diameter increment for that same tree. Let \(D_{it}\) and \(X_{it}\) be the true diameter and ring width increment for the tree. </p>
+
+<p>\[
+\log(D_{it}^O) \sim \mathcal{N}(\log(D_{it}), w)
+\]
+\[
+\log(X_{it}^O) \sim \mathcal{N}(\log(X_{it}), v)
+\]
+\[
+\log(X_{it}) = \beta_0 + \beta_i + \beta_t + \epsilon_{it}
+\]
+\[
+D_{i,t+1} = X_{it} + D_{it}
+\]
+\[
+\beta_0 \sim \mathcal{N}(0, 10000)  
+\]
+\[
+\beta_i \sim \mathcal{N}(0, \tau^2)
+\]
+\[
+\beta_t \sim \mathcal{N}(0, v_t)
+\]
+\[
+\epsilon_{it} \sim \mathcal{N}(0, \sigma^2)
+\]</p>
+
+<ol>
+<li><p>Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of \(\tau^2\), \(\sigma^2\), and \(v_t\). How about \(w\) and \(v\)?</p></li>
+<li><p>What priors do we need to complete the model?</p></li>
+<li><p>If we set \(v_t\) to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on \(v_t\) and estimating \(v_t\)?</p></li>
+<li><p>What aspects of the real world does the model not account for?</p></li>
+<li><p>Implement the model for the hemlock data we&#39;ll provide in JAGS [hemlock in 0-10 x 0-10 block of data Mike provided]. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I&#39;d suggest using flat priors on the standard deviation for the variance terms in the model.</p></li>
+<li><p>Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components?</p></li>
+</ol>
+
+</body>
+
+</html>
