@@ -31,7 +31,6 @@ dat <- dat[ , c('x', 'y', taxa)]
 
 write.table(dat, file = 'pls.csv', quote = FALSE, sep = ",", row.names = FALSE)
 
-stop()
 ### Pollen data from Neotoma
 
 #  Simon Goring - July 25, 2014

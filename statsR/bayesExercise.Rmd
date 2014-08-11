@@ -41,6 +41,6 @@ $$
 
 4. What aspects of the real world does the model not account for?
 
-5. Implement the model for the hemlock data we'll provide in JAGS [hemlock in 0-10 x 0-10 block of data Mike provided]. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I'd suggest using flat priors on the standard deviation for the variance terms in the model.
+5. Implement the model for the data in *rings.csv* in JAGS. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I'd suggest using flat priors on the standard deviation for the variance terms in the model.
 
 6. Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components?
