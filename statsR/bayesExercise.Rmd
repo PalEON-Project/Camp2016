@@ -15,22 +15,19 @@ $$
 \log(X_{it}^O) \sim \mathcal{N}(\log(X_{it}), v)
 $$
 $$
-\log(X_{it}) = \beta_0 + \beta_i + \beta_t + \epsilon_{it}
+\log(X_{it}) \sim \mathcal{N}( \beta_i + \beta_t, \sigma^2)
 $$
 $$
 D_{i,t+1} = X_{it} + D_{it}
 $$
 $$
-\beta_0 \sim \mathcal{N}(0, 10000)  
-$$
-$$
-\beta_i \sim \mathcal{N}(0, \tau^2)
+\beta_i \sim \mathcal{N}(\beta_0, \tau^2)
 $$
 $$
 \beta_t \sim \mathcal{N}(0, v_t)
 $$
 $$
-\epsilon_{it} \sim \mathcal{N}(0, \sigma^2)
+\beta_0 \sim \mathcal{N}(0, 10000)  
 $$
 
 1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $v_t$. How about $w$ and $v$?
@@ -41,6 +38,6 @@ $$
 
 4. What aspects of the real world does the model not account for?
 
-5. Implement the model for the data in *rings.csv* in JAGS. Both the DBH and ring width data have been transformed so that they represent mm of diameter. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I'd suggest using flat priors on the standard deviation for the variance terms in the model.
+5. Implement the model for the data in *rings.csv* in JAGS. Both the DBH and ring width data have been transformed so that they represent mm of diameter. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I'd suggest using flat priors on the standard deviation for the variance terms in the model. I'd also suggest writing the BUGS code in terms of `X` and `D` and using the log-normal distribution as the distribution for the `X` values. Note that in BUGS code `z ~ dlnorm(mu, tau)` means that `log(z)` has a normal distribution with mean `mu` and precision `tau`. Note: this is challenging. We're here to help as you have questions or get stuck.
 
-6. Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components?
+6. Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components? Are there any variance components that seem to trade off with each other? If so, these are components that the model has trouble identifying given the data available.

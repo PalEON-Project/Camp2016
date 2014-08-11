@@ -170,22 +170,19 @@ hr {
 \log(X_{it}^O) \sim \mathcal{N}(\log(X_{it}), v)
 \]
 \[
-\log(X_{it}) = \beta_0 + \beta_i + \beta_t + \epsilon_{it}
+\log(X_{it}) \sim \mathcal{N}( \beta_i + \beta_t, \sigma^2)
 \]
 \[
 D_{i,t+1} = X_{it} + D_{it}
 \]
 \[
-\beta_0 \sim \mathcal{N}(0, 10000)  
-\]
-\[
-\beta_i \sim \mathcal{N}(0, \tau^2)
+\beta_i \sim \mathcal{N}(\beta_0, \tau^2)
 \]
 \[
 \beta_t \sim \mathcal{N}(0, v_t)
 \]
 \[
-\epsilon_{it} \sim \mathcal{N}(0, \sigma^2)
+\beta_0 \sim \mathcal{N}(0, 10000)  
 \]</p>
 
 <ol>
@@ -193,8 +190,8 @@ D_{i,t+1} = X_{it} + D_{it}
 <li><p>What priors do we need to complete the model?</p></li>
 <li><p>If we set \(v_t\) to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on \(v_t\) and estimating \(v_t\)?</p></li>
 <li><p>What aspects of the real world does the model not account for?</p></li>
-<li><p>Implement the model for the hemlock data we&#39;ll provide in JAGS [hemlock in 0-10 x 0-10 block of data Mike provided]. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I&#39;d suggest using flat priors on the standard deviation for the variance terms in the model.</p></li>
-<li><p>Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components?</p></li>
+<li><p>Implement the model for the data in <em>rings.csv</em> in JAGS. Both the DBH and ring width data have been transformed so that they represent mm of diameter. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I&#39;d suggest using flat priors on the standard deviation for the variance terms in the model. I&#39;d also suggest writing the BUGS code in terms of <code>X</code> and <code>D</code> and using the log-normal distribution as the distribution for the <code>X</code> values. Note that in BUGS code <code>z ~ dlnorm(mu, tau)</code> means that <code>log(z)</code> has a normal distribution with mean <code>mu</code> and precision <code>tau</code>. Note: this is challenging. We&#39;re here to help as you have questions or get stuck.</p></li>
+<li><p>Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components? Are there any variance components that seem to trade off with each other? If so, these are components that the model has trouble identifying given the data available.</p></li>
 </ol>
 
 </body>
