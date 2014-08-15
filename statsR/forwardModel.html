@@ -188,7 +188,7 @@ y_{t}  \sim  \mbox{Binom}(n_{t},\theta_{t}).
 
 <ol>
 <li>Write a function that simulates a single time series of data and hidden states using the model above. Determine what arguments your function will need.</li>
-<li>Simulate many random time series using your function; plot the hidden states (as connected lines) for multiple time series to illustrate the behavior of the model. Use \(tau=0.2\) and \(\theta_0 = 0.2\) for simplicity.</li>
+<li>Simulate many random time series using your function; plot the hidden states (as connected lines) for multiple time series to illustrate the behavior of the model. Use \(\tau=0.2\) and \(\theta_0 = 0.2\) for simplicity.</li>
 <li>Now let&#39;s do a very basic data assimilation. Using a large number of hidden state time series from part (b), calculate the log-likelihood of the time series of data in the file <em>tsData.csv</em>, which has 20 time steps. The log-likelihood is just the log of the density of the data given the \(\theta\) values. The likelihood values (not on the log scale) are used to weight the hidden state time series (normalize these by the sum of the likelihood values across all the draws). Plot a few of the hidden state series with the largest weights. Overlay the data. Congratulations, you&#39;ve done a state variable data assimilation!</li>
 </ol>
 
