@@ -9,6 +9,8 @@ First, let's make sure we have the course materials on our computers. We can dow
 
 Go to "File->New Project" and select "Version Control" and "Git". Enter "https://github.com/PalEON-Project/Camp2014" as the "Repository URL" and click "Create Project" (you can choose the directory in which to place the project with the "Create project as subdirectory of" option). It should create a "Camp2014" directory with all of the materials within whichever directory you chose.
 
+Or http://www.stat.berkeley.edu/~paciorek/transfer/camp2014-statsR.zip
+
 # Reading in data
 
 We can read in data using the read.table() function, of which 
@@ -19,7 +21,7 @@ We can read in data using the read.table() function, of which
 ```{r reading files}
 getwd()
 
-setwd('~/Desktop/Camp2014/statsR')
+setwd('~/Desktop/camp/Camp2014/statsR')
 # platform independent code:
 # setwd(file.path('~', 'Desktop', 'Camp2014', 'statsR')) 
 
@@ -245,6 +247,16 @@ What do we need to decide in terms of what our function is going to do, what its
 
 
 ```{r function_prototype}
+require(maps)
+x <- full$lon
+y <- full$lat
+z <- full$oak
+propBreaks = c(0, 0.01, 0.05, 0.10, 0.15, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1)
+colors <- rev(terrain.colors(length(propBreaks)))
+cats <- cut(z, breaks = propBreaks)
+cats <- as.integer(cats)
+plot(x, y, xlim = c(-73.5, -70), ylim = c(41.3, 43.5), col = colors[cats], pch = 16)
+map("state", add = TRUE)
 
 ```
 
