@@ -107,7 +107,7 @@ hist(y, probability = TRUE)
 mean(y)
 
 mean(y <= -2)
-# sum(y <= 2)/n
+# sum(y <= -2)/n
 
 sort(y)[round(0.975 * n)]
 # empirical 97.5th percentile
