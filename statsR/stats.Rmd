@@ -11,7 +11,7 @@ In particular we want to think about
 
 $$
 \begin{aligned}
-  P(A|B)  = \frac{P(A|B)P(A)}{P(B)} 
+  P(A|B)  = \frac{P(B|A)P(A)}{P(B)} 
 \end{aligned}
 $$ 
  
