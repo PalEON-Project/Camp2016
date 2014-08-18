@@ -11,7 +11,7 @@ In particular we want to think about
 
 $$
 \begin{aligned}
-P(A|B) = \frac{P(A|B)P(A)}{P(B)}
+  P(A|B)  = \frac{P(A|B)P(A)}{P(B)} 
 \end{aligned}
 $$ 
  
@@ -22,12 +22,16 @@ Suppose someone is tested for a rare disease that occurs in the population in 1 
 and there is no information that suggests the person has the disease. It’s just a routine test. Also suppose the test is quite accurate: the probability of a false negative is .01 and the probability of a false positive is .01.
 
 $$
-\begin{aligned}
-P(D)     &= .001 \\
-P(−|D)   &= .01 \\
-P(+|D)   &= .99 \\
-P(+|D^c) &= .01 
-\end{aligned}
+P(D)     = .001 
+$$
+$$
+P(−|D)   = .01 
+$$
+$$
+P(+|D)   = .99 
+$$
+$$
+P(+|D^c) = .01 
 $$
 
 You are the person. Your doctor calls you in and tells you that you tested positive. Should you be worried? How worried? 
