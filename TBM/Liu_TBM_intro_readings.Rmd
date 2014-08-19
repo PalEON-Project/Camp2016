@@ -1,0 +1,26 @@
+---
+title: "Readings for Introduction to Terrestrial Biosphere Models"
+output: html_document
+---
+<big> **Ecosystem modeling and data assimilation** </big>    
+
+- Dietze and Latimer 2012 “Forest Simulators”. Sourcebook in Theoretical Ecology. University of California Press.
+- LeBauer et al. 2012. Facilitating feedbacks between field  measurements and ecosystem models. Ecological Monographs in press    
+- Clark, J. S., Wolosin, M. S., Dietze, M. C., Ibáñez, I., LaDeau, S., Welsh, M., & Kloeppel, B. (2007). Tree growth inference and prediction from diameter censuses and ring widths. Ecological Applications, 17(7), 1942–53.    
+- Wikle, C., & Berliner, L. (2007). A Bayesian tutorial for data assimilation. Physica D: Nonlinear Phenomena, 230(1-2), 1–16.    
+- Richardson, A. D., Hollinger, D. Y., Burba, G. G., Davis, K. J., Flanagan, L. B., Katul, G. G., Munger, J. W., et al. (2006). A multi-site analysis of random error in tower-based measurements of carbon and energy fluxes. Agricultural and Forest Meteorology, 136, 1–18. doi:10.1016/j.agrformet.2006.01.007    
+- Zobitz, J. M., Desai, A., Moore, D., & Chadwick, M. (2011). A primer for data assimilation with ecological models using Markov Chain Monte Carlo (MCMC). Oecologia, 599–611.    
+- Keenan, T. F., Carbone, M. S., Reichstein, M., & Richardson, A. D. (2011). The model–data fusion pitfall: assuming certainty in an uncertain world. Oecologia, 587–597. doi:10.1007/s00442-011-2106-x   
+- Moorcroft, Paul R. "How close are we to a predictive science of the biosphere?." Trends in Ecology & Evolution 21.7 (2006): 400-407.
+- Bonan. 2008. "Ecological Climatology", 2nd ed.. Cambridge University Press.
+- Long, S. P., and C. J. Bernacchi. "Gas exchange measurements, what can they tell us about the underlying limitations to photosynthesis? Procedures and sources of error." Journal of experimental botany 54.392 (2003): 2393-2401.
+- Braswell, B. H., Sacks, W. J., Linder, E., & Schimel, D. S. (2005). Estimating diurnal to annual ecosystem parameters by synthesis of a carbon flux model with eddy covariance net ecosystem exchange observations. Global Change Biology, 11(2), 335-355.
+- Sacks, W. J., Schimel, D. S., Monson, R. K., & Braswell, B. H. (2006). Model‐data synthesis of diurnal and seasonal CO2 fluxes at Niwot Ridge, Colorado. Global Change Biology, 12(2), 240-259.
+- Moore, D. J., Hu, J., Sacks, W. J., Schimel, D. S., & Monson, R. K. (2008). Estimating transpiration and the sensitivity of carbon uptake to water availability in a subalpine forest using a simple ecosystem process model informed by measured net CO< sub> 2</sub> and H< sub> 2</sub> O fluxes. Agricultural and Forest Meteorology, 148(10), 1467-1477.
+
+<big> **Paleo modeling examples** </big>    
+
+- Miller, P. A., Giesecke, T., Hickler, T., Bradshaw, R. H., Smith, B., Seppä, H., ... & Sykes, M. T. (2008). Exploring climatic and biotic controls on Holocene vegetation change in Fennoscandia. Journal of Ecology, 96(2), 247-259.
+- Garreta, V., Miller, P. A., Guiot, J., Hély, C., Brewer, S., Sykes, M. T., & Litt, T. (2010). A method for climate and vegetation reconstruction through the inversion of a dynamic vegetation model. Climate dynamics, 35(2-3), 371-389.
+- Lehsten, D., Dullinger, S., Hülber, K., Schurgers, G., Cheddadi, R., Laborde, H., ... & Sykes, M. T. (2014). Modelling the Holocene migrational dynamics of Fagus sylvatica L. and Picea abies (L.) H. Karst. Global Ecology and Biogeography, 23(6), 658-668.
+- Wu, H., Guiot, J., Peng, C., & Guo, Z. (2009). New coupled model used inversely for reconstructing past terrestrial carbon storage from pollen data: validation of model using modern data. Global Change Biology, 15(1), 82-96.   
