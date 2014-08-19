@@ -24,17 +24,17 @@ $$
 \beta_i \sim \mathcal{N}(\beta_0, \tau^2)
 $$
 $$
-\beta_t \sim \mathcal{N}(0, v_t)
+\beta_t \sim \mathcal{N}(0, \phi_t)
 $$
 $$
 \beta_0 \sim \mathcal{N}(0, 10000)  
 $$
 
-1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $v_t$. How about $w$ and $v$?
+1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $\phi_t$. How about $w$ and $v$?
 
 2. What priors do we need to complete the model?
 
-3. If we set $v_t$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $v_t$ and estimating $v_t$?
+3. If we set $\phi_t$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $\phi_t$ and estimating $\phi_t$?
 
 4. What aspects of the real world does the model not account for?
 
