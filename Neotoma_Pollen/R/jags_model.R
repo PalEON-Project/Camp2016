@@ -54,7 +54,7 @@ out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('rho', 't
             n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmm, DIC = FALSE)
 
 out.mcmc <- as.mcmc(out)[[1]]
-thetaHat <- hem.model$pct
+thetaHat <- y / n
 
 colNames <- dimnames(out.mcmc)[[2]]
 whichTheta <- grep('theta', colNames)
