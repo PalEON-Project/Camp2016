@@ -33,12 +33,6 @@ $$
 $$
 P(+|D^c) = .01 
 $$
-$$
-\begin{aligned}
-P(D)     &= .001 \\
-P(D)     &= .001 
-\end{aligned}
-$$
 
 You are the person. Your doctor calls you in and tells you that you tested positive. Should you be worried? How worried? 
 
