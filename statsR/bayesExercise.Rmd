@@ -24,7 +24,7 @@ $$
 \beta_i \sim \mathcal{N}(\beta_0, \tau^2)
 $$
 $$
-\beta_t \sim \mathcal{N}(0, \phi_t^2)
+\beta_t \sim \mathcal{N}(0, \phi^2)
 $$
 $$
 \beta_0 \sim \mathcal{N}(0, 10000)  
@@ -32,11 +32,11 @@ $$
 
 0. Draw a directed acyclic graph (DAG) of the model - this is the circles and arrows diagram we saw yesterday on the board.
 
-1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $\phi_t^2$. How about $w^2$ and $v^2$?
+1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $\phi^2$. How about $w^2$ and $v^2$?
 
 2. What priors do we need to complete the model?
 
-3. If we set $\phi_t^2$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $\phi_t^2$ and estimating $\phi_t^2$?
+3. If we set $\phi^2$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $\phi^2$ and estimating $\phi^2$?
 
 4. What aspects of the real world does the model not account for?
 
