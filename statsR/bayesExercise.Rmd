@@ -30,6 +30,8 @@ $$
 \beta_0 \sim \mathcal{N}(0, 10000)  
 $$
 
+0. Draw a directed acyclic graph (DAG) of the model - this is the circles and arrows diagram we saw yesterday on the board.
+
 1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $\phi_t^2$. How about $w^2$ and $v^2$?
 
 2. What priors do we need to complete the model?
