@@ -46,12 +46,13 @@ write.table(dat, file = 'pls.csv', quote = FALSE, sep = ",", row.names = FALSE)
 #      c. lat/long and albers x/y 
 #      d. taxa as counts (or proportions?)
 
-towerLoc <- c(-(86 + 2/60 + 13/3600), 46 + 32/60 + 31/3600)
-
-
-library(neotoma)
+install.packages("devtools") 
+require(devtools) 
+install_github("neotoma", "SimonGoring") 
+require(neotoma) 
 library(rgdal)
-library(neotoma)
+
+towerLoc <- c(-(86 + 2/60 + 13/3600), 46 + 32/60 + 31/3600)
 
 ##  These are the sites around UNDERC and Tower Hill Lake.
 ##  This gives us 46 records (on 25 July, 2014)
@@ -59,9 +60,9 @@ boundingBox <- c(-92, 44, -85, 48)
 
 boxSites <- get_dataset(loc = boundingBox, datasettype = 'pollen')
 
-allSites <- get_download(sapply(boxSites, function(x)x$DatasetID))
+allSites <- get_download(boxSites)
 
-allCompiled <- lapply(allSites, compile_taxa, list.name = 'P25')
+allCompiled <- compile_taxa(allSites, list.name = 'P25')
 
 allData <- compile_downloads(allCompiled)
 
