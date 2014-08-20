@@ -9,10 +9,10 @@ The idea is to statistically model tree DBH and growth using the tree ring data 
 Let's consider the following model. Let $D_{it}^O$ be the observed diameter for tree $i$ at time $t$ and $X_{it}^O$ be the observed diameter increment for that same tree. Let $D_{it}$ and $X_{it}$ be the true diameter and ring width increment for the tree. 
 
 $$
-\log(D_{it}^O) \sim \mathcal{N}(\log(D_{it}), w)
+\log(D_{it}^O) \sim \mathcal{N}(\log(D_{it}), w^2)
 $$
 $$
-\log(X_{it}^O) \sim \mathcal{N}(\log(X_{it}), v)
+\log(X_{it}^O) \sim \mathcal{N}(\log(X_{it}), v^2)
 $$
 $$
 \log(X_{it}) \sim \mathcal{N}( \beta_i + \beta_t, \sigma^2)
@@ -24,20 +24,20 @@ $$
 \beta_i \sim \mathcal{N}(\beta_0, \tau^2)
 $$
 $$
-\beta_t \sim \mathcal{N}(0, \phi_t)
+\beta_t \sim \mathcal{N}(0, \phi_t^2)
 $$
 $$
 \beta_0 \sim \mathcal{N}(0, 10000)  
 $$
 
-1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $\phi_t$. How about $w$ and $v$?
+1. Interpret the meaning of the various parameters in the model. How do they account for inter-individual variability and year-to-year variability? What is the meaning of $\tau^2$, $\sigma^2$, and $\phi_t^2$. How about $w^2$ and $v^2$?
 
 2. What priors do we need to complete the model?
 
-3. If we set $\phi_t$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $\phi_t$ and estimating $\phi_t$?
+3. If we set $\phi_t^2$ to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on $\phi_t^2$ and estimating $\phi_t^2$?
 
 4. What aspects of the real world does the model not account for?
 
 5. Implement the model for the data in *rings.csv* in JAGS. Both the DBH and ring width data have been transformed so that they represent mm of diameter. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I'd suggest using flat priors on the standard deviation for the variance terms in the model. I'd also suggest writing the BUGS code in terms of `X` and `D` and using the log-normal distribution as the distribution for the `X` values. Note that in BUGS code `z ~ dlnorm(mu, tau)` means that `log(z)` has a normal distribution with mean `mu` and precision `tau`. Note: this is challenging. We're here to help as you have questions or get stuck.
 
-6. Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components? Notice the posteriors for $w$ and $\sigma^2$; can you explain what is going on?
+6. Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components? Notice the posteriors for $w^2$ and $\sigma^2$; can you explain what is going on?
