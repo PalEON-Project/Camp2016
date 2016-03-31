@@ -47,7 +47,7 @@ hmm <- function(){
 
 #  And let's run it:
 nT <- nrow(hem.model)
-y <- hem.model$hemlock
+y <- round(hem.model$hemlock, 0) # needs to be a whole number.
 n <- round(hem.model$n)
 
 out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('rho', 'tau', 'theta'), 
