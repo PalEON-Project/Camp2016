@@ -11,9 +11,7 @@
 #      c. lat/long and albers x/y 
 #      d. taxa as counts (or proportions?)
 
-install.packages("devtools") 
-require(devtools) 
-install_github("neotoma", "SimonGoring") 
+install.packages("neotoma") 
 require(neotoma) 
 library(rgdal)
 library(ggplot2)
