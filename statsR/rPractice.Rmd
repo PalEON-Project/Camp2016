@@ -1,5 +1,5 @@
 # PalEON Summer Course: Practice with R
-## August 2014
+## August 2016
 ## Chris Paciorek
 
 Here we'll do some analysis of the relationship of pollen and trees.
@@ -10,23 +10,23 @@ Here we'll do some analysis of the relationship of pollen and trees.
 
 ### Settlement pollen and calibration against vegetation
 
-  1. Read the upper Midwest settlement-era pollen data (settlementPollen.csv) and PLS composition data (pls.csv)
- into R from the data/upperMidwest folder. 
+  1. Read the upper Midwest settlement-era pollen data (`settlementPollen.csv`) and PLS composition data (`pls.csv`)
+ into R from the `data/upperMidwest` folder. 
 
   2. Make some maps to see where the locations are and make some plots to assess
  the overall composition of different taxa in pollen and on the landscape.
 
   3. Match PLS data with each pond, either based on the nearest PLS grid cell
  to each pond or using all PLS data within some buffer (or some other strategy
- that you might come up with). The `rdist()` and `which.min()` functions
+ that you might come up with). Hints: The `rdist()` and `which.min()` functions
 may come in handy. `rdist()` requires you load the *fields* package.
 
   4. Assess the relationship between pollen and PLS cells based on the proportions.
  
 ### Interpreting the proxy data as a record of the past
 
-  5. Read in the pollen time series data for the upper Midwest (pollenTimeSeries.csv). Create an R data frame that contains
-the pond-level information, as in the pondInfo.csv file in the New England data.
+  5. Read in the pollen time series data for the upper Midwest (`pollenTimeSeries.csv`). Create an R data frame that contains
+the pond-level information, as in the `pondInfo.csv` file in the New England data.
 
   6. Extract the data for Glimmerglass Lake and make some plots to assess how composition has changed over time. 
 

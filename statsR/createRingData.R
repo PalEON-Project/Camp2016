@@ -9,7 +9,7 @@ trees$DBH12 <- as.numeric(trees$DBH12) * 10
 
 
 source('matchInventoryRings.R')
-source('Read_Tuscon.R')
+source('Read_Tucson.R')
 source('extract.stringCode.R')
 rings <- Read_Tuscon("../PecanInputs/Revised 2/")
       

@@ -56,7 +56,7 @@ mixedModel <- function(){
 Here's how we run it from R.
 
 ```{r run_mixed}
-require(R2jags, quietly = TRUE) 
+library(R2jags, quietly = TRUE) 
 out <- jags(data = list(y = y, n = n, nMoms = nMoms, momIds = momIds),
   parameters.to.save = c('theta','sigma','tau', 'mus'), n.chains = 1,
   n.iter = 2000, n.burnin = 1000, model.file = mixedModel, DIC = FALSE)

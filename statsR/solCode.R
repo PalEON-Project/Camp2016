@@ -19,7 +19,7 @@ lapply(full[ , taxaCols], median)
 
 ## basic code for a single case
 
-require(maps)
+library(maps)
 x <- full$lon
 y <- full$lat
 z <- full$oak
@@ -331,7 +331,7 @@ logXobs <- log(as.matrix(data[ , ringCols]))
 
 # run MCMC
 
-require(R2jags, quietly = TRUE) 
+library(R2jags, quietly = TRUE) 
 out <- jags(data = list(logDobs = logDobs, logXobs = logXobs, N = N, nT = nT),
   parameters.to.save = c('D[1,1]', 'D[1,30]','w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t'), inits = list(list(w_sd=1,v_sd=1, tau_sd=1, phi_sd=1,sigma_sd=1)), 
   n.chains = 1,

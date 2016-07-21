@@ -1,5 +1,5 @@
 # PalEON Summer Course: R module
-## August 2014
+## August 2016
 ## Chris Paciorek
 
 
@@ -7,9 +7,9 @@ In this module, we'll introduce R by way of working with some pollen data.
  
 First, let's make sure we have the course materials on our computers. We can download the material from Github by setting up a project in RStudio. 
 
-Go to "File->New Project" and select "Version Control" and "Git". Enter "https://github.com/PalEON-Project/Camp2014" as the "Repository URL" and click "Create Project" (you can choose the directory in which to place the project with the "Create project as subdirectory of" option). It should create a "Camp2014" directory with all of the materials within whichever directory you chose.
+Go to "File->New Project" and select "Version Control" and "Git". Enter "https://github.com/PalEON-Project/Camp2016" as the "Repository URL" and click "Create Project" (you can choose the directory in which to place the project with the "Create project as subdirectory of" option). It should create a "Camp2016" directory with all of the materials within whichever directory you chose.
 
-Or http://www.stat.berkeley.edu/~paciorek/transfer/camp2014-statsR.zip
+Or http://www.stat.berkeley.edu/~paciorek/transfer/camp2016-statsR.zip
 
 # Reading in data
 
@@ -21,9 +21,9 @@ We can read in data using the read.table() function, of which
 ```{r reading files}
 getwd()
 
-setwd('~/Desktop/camp/Camp2014/statsR')
+setwd('~/Desktop/Camp2016/statsR')
 # platform independent code:
-# setwd(file.path('~', 'Desktop', 'Camp2014', 'statsR')) 
+# setwd(file.path('~', 'Desktop', 'Camp2016', 'statsR')) 
 
 pollen <- read.csv('data/newEngland/modernPollen.csv')
 ponds <- read.csv('data/newEngland/pondInfo.csv') 
@@ -59,7 +59,7 @@ Everything in R is stored as an object, each of which has a class that describes
  Examples of character values are: "Sam", "0923", "Sam9", "Sam is", "Sam\t9", "Sam's the man.\nNo doubt.\n".  Each of these is a character vector of length 1.
   * *numeric* vectors (i.e., double precision real numbers)
   * *integer* vectors
-  * *logical* (T/F) vectors
+  * *logical* (TRUE/FALSE) vectors
   * *lists*: vectors of arbitrary objects
   * *factors*: vector-like objects of categorical variables with a pre-defined set of labels
   * *functions*
@@ -121,13 +121,13 @@ head(full)
 summary(full) 
 taxaCols <- 9:18
 cor(full[ , taxaCols])
-require(fields, quietly = TRUE)
+library(fields, quietly = TRUE)
 image.plot(1:10, 1:10, cor(full[ , taxaCols])) # I should change the z-scale and the color scheme
 ```
 
 Now let's make some basic plots.
 ```{r initialPlots, fig.width=7.5}
-require(maps)
+library(maps)
 plot(full$lon, full$lat, xlim = c(-73.5, -70), ylim = c(41.3,43.5), col = 'red', pch = 16) 
 map('state', add = TRUE) 
 par(mfrow=c(3,4)) 
@@ -168,7 +168,7 @@ head(full)[ , 1:8]
 ```
 
 That's a bit frustrating but easily fixable once we talk more about writing
- functions. (Also see `arrange()` in the `plyr` package.)
+ functions. (Also see `arrange()` in the `dplry` or `plyr` packages.)
 
 # Vectorized operations and the apply function
 
@@ -194,6 +194,8 @@ full <- within(full, warmSpp <- oak + hickory)
 full$warmSpp[1:8]
 ```
 
+`dplyr` is a nice additional package that allows you to do this sort of thing quite easily.
+
 R has a feature called recycling by which it will fill in additional entries in vectors, matrices, data frames:
 
 ```{r recycling, fig.width=4}
@@ -218,7 +220,7 @@ names(myModel)
 myModel$coefficients 
 ```
 
-We can use the apply function to "lapply" an arbitrary function to each element of the list. This is often faster (and is easier to write) than using a loop.
+We can use `lapply()` "apply" an arbitrary function to each element of the list. This is easier to write (though not necessarily faster) than using a loop.
 
 ```{r apply}
 myList = list(1:3, 4:8, 101, 111:150) 
@@ -228,7 +230,7 @@ for(i in 1:length(myList))
    out[i] <- max(myList[[i]]) 
 ```
 
-**Challenge**: how can I find the median abundance of each species across all the ponds?
+**Challenge**: how can I find the median abundance of each species across all the ponds? Hint, treating a subset of the columns of the `full` dataframe as if they were a list will work.
  
 # Functions
 
@@ -247,7 +249,7 @@ What do we need to decide in terms of what our function is going to do, what its
 
 
 ```{r function_prototype}
-require(maps)
+library(maps)
 x <- full$lon
 y <- full$lat
 z <- full$oak
@@ -293,7 +295,7 @@ par()$mfrow
 As part of preparing for the course, you've probably already downloaded
  and installed an R package from the R archive, CRAN.
  Packages provide additional functionality and are the "killer app"
- of R (think the App Store for Apple).
+ of R (think the App Store for Apple's iPhone).
  The packages are contributed by users and R developers and vary in quality.
  They implement most statistical algorithms (and other algorithms and utilities)
  that now exist.
