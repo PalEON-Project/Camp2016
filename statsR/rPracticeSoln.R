@@ -59,9 +59,9 @@ nTaxa <- length(taxa)
 
 par(mfrow = c(4, 5), mai = c(.4, .4, .3, .1))
 for(taxon in taxa) {
-plot(plsMatch[ , taxon], poll[ , taxon], main = taxon,  xlab = 'pls', 
-     ylab = 'pollen')
-abline(0, 1)
+    plot(plsMatch[ , taxon], poll[ , taxon], main = taxon,  xlab = 'pls', 
+         ylab = 'pollen')
+    abline(0, 1)
 }
 
 

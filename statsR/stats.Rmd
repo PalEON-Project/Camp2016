@@ -1,5 +1,5 @@
 # PalEON Summer Course: Statistics Review
-## August 2014
+## August 2016
 ## Chris Paciorek
 
 In this module, we’ll review the basics of probability, and touch back on some programming in R. Much
@@ -130,12 +130,11 @@ three basic tools are functions (which we’ve seen), branching (i.e., if-else s
 x = 4
 y = 7
 if (x > 3 && y < 5) {
-print("success")
-print("doing some stuff")
+   print("success")
+   print("doing some stuff")
 } else {
-4
-print("failure")
-print("doing something different")
+   print("failure")
+   print("doing something different")
 }
 ```
 
@@ -150,14 +149,11 @@ track <- matrix(NA, nr = nSteps, nc = 2)
 track[1, ] <- c(0, 0)
 bound <- 20
 plot(track[1, 1], track[1, 2], xlim = c(-bound, bound), ylim =
-c(-bound,
-bound), pch = 16, xlab = "x", ylab = "y")
+              c(-bound, bound), pch = 16, xlab = "x", ylab = "y")
 for (it in 2:nSteps) {
-track[it, ] <- track[it - 1, ] + sample(c(-1, 1), 2, replace =
-TRUE)
-arrows(track[it - 1, 1], track[it - 1, 2], track[it, 1], track[it,
-2], length = 0.05,
-angle = 20)
+    track[it, ] <- track[it - 1, ] + sample(c(-1, 1), 2, replace = TRUE)
+    arrows(track[it - 1, 1], track[it - 1, 2], track[it, 1], track[it, 2], 
+                    length = 0.05, angle = 20)
 }
 ```
 
@@ -175,16 +171,14 @@ maxSteps <- 1000
 track <- matrix(NA, nr = maxSteps, nc = 2)
 track[1, ] <- c(0, 0)
 bound <- 20
-plot(track[1, 1], track[1, 2], xlim = c(-bound, bound), ylim =
-c(-bound, bound), pch = 16, xlab = "x", ylab = "y")
+plot(track[1, 1], track[1, 2], xlim = c(-bound, bound), ylim = c(-bound, bound), 
+              pch = 16, xlab = "x", ylab = "y")
 it <- 1
 while (max(abs(track[it, ])) < bound && it < maxSteps) {
-it <- it + 1
-track[it, ] <- track[it - 1, ] + sample(c(-1, 1), 2, replace =
-TRUE)
-arrows(track[it - 1, 1], track[it - 1, 2], track[it, 1], track[it,
-2], length = 0.05,
-angle = 20)
+      it <- it + 1
+      track[it, ] <- track[it - 1, ] + sample(c(-1, 1), 2, replace = TRUE)
+      arrows(track[it - 1, 1], track[it - 1, 2], track[it, 1], track[it, 2], 
+                      length = 0.05, angle = 20)
 }
 title(main = "Computational modern art in R")
 ```

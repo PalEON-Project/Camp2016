@@ -38,6 +38,7 @@ setwd('data/upperMidwest')
 poll <- read.csv('settlementPollen.csv')
 pls <- read.csv('pls.csv')
 
+
 ## 2)
 library(maps)
 
@@ -55,7 +56,7 @@ plsSub <- pls[pls$x < max(poll$x) & pls$x > min(poll$x) &
 pls$y < max(poll$y) & pls$y > min(poll$y), ]
 
 plsTaxaCols <- 3:ncol(plsSub)
-pollTaxaCols <- 12:ncol(poll)
+pollTaxaCols <- 13:ncol(poll)
 
 identical(sort(names(plsSub)[plsTaxaCols]),
   sort(names(poll)[pollTaxaCols]))
@@ -93,30 +94,29 @@ nTaxa <- length(taxa)
 
 par(mfrow = c(4, 5), mai = c(.4, .4, .3, .1))
 for(taxon in taxa) {
-plot(plsMatch[ , taxon], poll[ , taxon], main = taxon,  xlab = 'pls', 
-     ylab = 'pollen')
-abline(0, 1)
+    plot(plsMatch[ , taxon], poll[ , taxon], main = taxon,  xlab = 'pls', 
+         ylab = 'pollen')
+    abline(0, 1)
 }
-
 
 
 ## 5)
 
 pollTime <- read.csv('pollenTimeSeries.csv')
 
-ponds <- unique(pollTime[ , c('sitename', 'lat', 'long', 'dataset', 'x', 'y')]) 
+ponds <- unique(pollTime[ , c('site.name', 'lat', 'long', 'dataset', 'x', 'y')])
 # notice the repetition - multiple cores per lake?
 
 ## 6)
 
-glimmer <- pollTime[pollTime$sitename == "Glimmerglass Lake", ]
+glimmer <- pollTime[pollTime$site.name == "Glimmerglass Lake", ]
 head(glimmer)
-glimmerTaxaCols <- 12:ncol(glimmer)
+glimmerTaxaCols <- 13:ncol(glimmer)
 taxa <- names(glimmer)[glimmerTaxaCols]
 glimmer[ , taxa] <- glimmer[ , taxa] / rowSums(glimmer[ , taxa])
 
 par(mfrow = c(2, 3))
-for(taxon in c('birch', 'hemlock', 'oak', 'pine', 'fir', 'spruce')) {
+for(taxon in c('Birch', 'Hemlock', 'Oak', 'Pine', 'Fir', 'Spruce')) {
   plot(-glimmer$age, glimmer[[taxon]], 
        main = taxon, type = "l")
   points(-glimmer$age, glimmer[[taxon]])
@@ -124,33 +124,34 @@ for(taxon in c('birch', 'hemlock', 'oak', 'pine', 'fir', 'spruce')) {
 
 ## 7)
 
-dists <- rdist(ponds[ponds$sitename == "Glimmerglass Lake", c('x', 'y')], ponds[ , c('x', 'y')])
+dists <- rdist(ponds[ponds$site.name == "Glimmerglass Lake", c('x', 'y')], ponds[ , c('x', 'y')])
 
 ord <- order(dists)
-nearby <- ponds$sitename[ord[1:10]]
+nearby <- ponds$site.name[ord[1:10]]
 
 
 pollTime[ , taxa ] <- pollTime[ , taxa ] / rowSums(pollTime[ , taxa])
 
 site <- nearby[1]
-sub <- pollTime[pollTime$sitename == site, ]
-plot(-sub$age, sub$hemlock, xlim = range(-sub$age), 
+sub <- pollTime[pollTime$site.name == site, ]
+plot(-sub$age, sub$Hemlock, xlim = range(-sub$age), 
      type = 'l')
 
 cols <- c('black', 'darkgrey', 'lightgrey', 'red1', 'orange', 'red2', 'green', 'purple', 'lightblue', 'darkblue')
 cnt <- 2
 for(site in nearby[2:length(nearby)]) {
-  sub <- pollTime[pollTime$sitename == site, ]
-  lines(-sub$age, sub$hemlock, col = cols[cnt])
+  sub <- pollTime[pollTime$site.name == site, ]
+  lines(-sub$age, sub$Hemlock, col = cols[cnt])
   cnt <- cnt + 1
 }
 
 ## 8)
 library(mgcv)
+taxon <- 'Hemlock'
 
 # get glimmer again, as need counts not proportions
 pollTime <- read.csv('pollenTimeSeries.csv')
-glimmer <- pollTime[pollTime$sitename == "Glimmerglass Lake", ]
+glimmer <- pollTime[pollTime$site.name == "Glimmerglass Lake", ]
 
 glimmer$total <- rowSums(glimmer[ , glimmerTaxaCols])
 y <- cbind(glimmer[[taxon]], glimmer$total - glimmer[[taxon]])
@@ -162,7 +163,7 @@ preds <- predict(mod, newdata = list(x = newAges),
                  type = 'response', se.fit = TRUE)
 
 par(mfrow = c(1, 1))
-taxon <- 'hemlock'
+
 plot(-glimmer$age, glimmer[[taxon]] / glimmer$total, 
      main = taxon, type = "l")
 points(-glimmer$age, glimmer[[taxon]] / glimmer$total)
