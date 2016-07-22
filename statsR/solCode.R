@@ -334,11 +334,12 @@ logXobs <- log(as.matrix(data[ , ringCols]))
 
 library(R2jags, quietly = TRUE) 
 out <- jags(data = list(logDobs = logDobs, logXobs = logXobs, N = N, nT = nT),
-  parameters.to.save = c('D[1,1]', 'D[1,30]','w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t'), inits = list(list(w_sd=1,v_sd=1, tau_sd=1, phi_sd=1,sigma_sd=1)), 
+  parameters.to.save = c('D[1,1]', 'D[1,30]','w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t', 'X'), inits = list(list(w_sd=1,v_sd=1, tau_sd=1, phi_sd=1,sigma_sd=1)), 
   n.chains = 1,
   n.iter = 5000, n.burnin = 1000, model.file = ringModel, DIC = FALSE)
+
 out_noInit <- jags(data = list(logDobs = logDobs, logXobs = logXobs, N = N, nT = nT),
-            parameters.to.save = c('D[1,1]', 'D[1,30]','w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t'), 
+            parameters.to.save = c('D[1,1]', 'D[1,30]','w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t', 'X'), 
             n.chains = 1,
             n.iter = 5000, n.burnin = 1000, model.file = ringModel, DIC = FALSE)
 
@@ -349,11 +350,11 @@ out.mcmc <- as.mcmc(out)[[1]]
 
 tsplot(out.mcmc[ , 'beta0'])
 
-beta <- out.mcmc[ , paste('beta[', 1:N, ']', sep = '')]
+beta_i <- out.mcmc[ , paste('beta_i[', 1:N, ']', sep = '')]
 
 par(mfrow = c(4, 4))
 for(i in 1:N)
-  tsplot(beta[ , i])
+  tsplot(beta_i[ , i])
 
 beta_t <- out.mcmc[ , paste('beta_t[', 1:nT, ']', sep = '')]
 
