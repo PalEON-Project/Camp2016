@@ -1,11 +1,11 @@
 # PalEON Summer Course: Forward model module
-## August 2014
+## August 2016
 ## Chris Paciorek
 
 
 In this module, we'll do some hands-on work to simulate data from a model.
 
-First we'll practice a bit with joint distributions, following on our work in the last model on statistics and probability. 
+First we'll practice a bit with joint distributions, following on our work in the last module on statistics and probability. 
 
 # Practice with joint distributions
 

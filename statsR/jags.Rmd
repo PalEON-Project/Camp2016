@@ -1,5 +1,5 @@
 # PalEON Summer Course: MCMC with JAGS module
-## August 2014
+## August 2016
 ## Chris Paciorek
 
 
@@ -160,8 +160,8 @@ hmmFake <- function(){
     
 	# latent process evolution and likelihood
 	logitTheta[1] ~ dnorm(mu + rho*(logitTheta0 - mu), tau2Inv)
-    theta[1] <- exp(logitTheta[1])/(1+exp(logitTheta[1]))  
-    y[1] ~ dbin(theta[1], n[1])
+        theta[1] <- exp(logitTheta[1])/(1+exp(logitTheta[1]))  
+        y[1] ~ dbin(theta[1], n[1])
 	for(i in 2:nT){
 		logitTheta[i] ~ dnorm(mu + rho*(logitTheta[i-1] - mu), tau2Inv)
 		theta[i] <- exp(logitTheta[i])/(1+exp(logitTheta[i]))
@@ -173,8 +173,10 @@ hmmFake <- function(){
 Now fit the model using JAGS and look at the fits.
 
 ```{r fit_hmmFake, fig.width=7}
-out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('theta', 'mu', 'rho', 'tau'), 
-	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmmFake, DIC = FALSE)
+out <- jags(data = list(nT = nT, n = n, y = y), 
+    parameters.to.save = c('theta', 'mu', 'rho', 'tau'), 
+    n.chains = 1, n.iter = 10000, n.burnin = 2000, 
+    model.file = hmmFake, DIC = FALSE)
 out.mcmc <- as.mcmc(out)[[1]]
 colNames <- dimnames(out.mcmc)[[2]]
 whichTheta <- grep('theta', colNames)
@@ -232,14 +234,14 @@ which we've already worked with some. First we'll read in the data.
 
 ```{r read_data}
 data <- read.csv('data/upperMidwest/pollenTimeSeries.csv')
-glimmer <- data[data$sitename == "Glimmerglass Lake", ]
+glimmer <- data[data$site.name == "Glimmerglass Lake", ]
 glimmer$age <- -glimmer$age
 glimmer <- glimmer[order(glimmer$age), ]
-glimmer$n <- rowSums(glimmer[ , 12:ncol(glimmer)])
+glimmer$n <- rowSums(glimmer[ , 13:ncol(glimmer)])
 nT <- nrow(glimmer)
-plot(glimmer$age, glimmer$hemlock/glimmer$n)
-lines(glimmer$age, glimmer$hemlock/glimmer$n)
-y <- glimmer$hemlock
+plot(glimmer$age, glimmer$Hemlock/glimmer$n)
+lines(glimmer$age, glimmer$Hemlock/glimmer$n)
+y <- glimmer$Hemlock
 n <- round(glimmer$n)
 ```
 
@@ -272,7 +274,7 @@ And let's fit the model.
 out <- jags(data = list(nT = nT, n = n, y = y), parameters.to.save = c('rho', 'tau', 'theta'), 
 	n.chains = 1, n.iter = 10000, n.burnin = 2000, model.file = hmm, DIC = FALSE)
 out.mcmc <- as.mcmc(out)[[1]]
-thetaHat <- glimmer$hemlock/glimmer$n
+thetaHat <- glimmer$Hemlock/glimmer$n
 
 colNames <- dimnames(out.mcmc)[[2]]
 whichTheta <- grep('theta', colNames)
@@ -290,7 +292,7 @@ polygon(cbind(c(glimmer$age, rev(glimmer$age), glimmer$age[1]), c(quants[1, ],
 lines(glimmer$age, thetaHat, col = 'red')
 points(glimmer$age, thetaHat, col = 'red')
 lines(glimmer$age, colMeans(thetaPost), col = 'blue')
-title('hemlock at Glimmerglass Lake')
+title('Hemlock at Glimmerglass Lake')
 abline(v = 1650 - 1950, col = 'grey')
 ```
 

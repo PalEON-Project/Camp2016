@@ -1,5 +1,5 @@
 # PalEON Summer Course: Bayesian statistics module
-## August 2014
+## August 2016
 ## Chris Paciorek
 
 In this module, we'll cover the basics of Bayesian statistics, hierarchical
