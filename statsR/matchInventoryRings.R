@@ -2,7 +2,8 @@ matchInventoryRings <- function(trees,rings,extractor=from.TreeCode,nyears=30,co
 
   ## build tree codes
   names(trees) = toupper(names(trees))
-  tree.ID = to.TreeCode(trees$SITE,trees$PLOT,trees$SUB,trees$TAG)
+  #tree.ID = to.TreeCode(trees$SITE,trees$PLOT,trees$SUB,trees$TAG)
+  tree.ID = as.character(trees$TAG)
 
   ## build tree ring codes
   if(is.list(rings)){

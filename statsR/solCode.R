@@ -287,7 +287,7 @@ points(seq_len(nT), data$y/data$n, ylim = c(0,1), col = 'orange')
 ### bayesExercise
 
 data <- read.csv(file.path('data','rings.csv'))
-data <- data[data$SPP == "QURU", ]
+data <- data[data$SPP == "TSCA", ]
 ringCols <- grep("X[0-9]{4}", names(data))
 
 ringModel <- function() {
@@ -327,14 +327,14 @@ ringModel <- function() {
 
 N <- nrow(data)
 nT <- length(ringCols)
-logDobs <- log(cbind(matrix(NA, N, nT-2), data$DBH11, data$DBH12))
+logDobs <- log(cbind(matrix(NA, N, nT-1), data$DBH14))
 logXobs <- log(as.matrix(data[ , ringCols]))
 
 # run MCMC
 
 library(R2jags, quietly = TRUE) 
 out <- jags(data = list(logDobs = logDobs, logXobs = logXobs, N = N, nT = nT),
-  parameters.to.save = c('D[1,1]', 'D[1,30]','w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t', 'X'), inits = list(list(w_sd=1,v_sd=1, tau_sd=1, phi_sd=1,sigma_sd=1)), 
+  parameters.to.save = c('D[1,1]', paste0('D[1,', nT, ']'),'w_sd', 'v_sd', 'tau_sd', 'phi_sd', 'sigma_sd','beta0', 'beta_i', 'beta_t', 'X'), inits = list(list(w_sd=1,v_sd=1, tau_sd=1, phi_sd=1,sigma_sd=1)), 
   n.chains = 1,
   n.iter = 5000, n.burnin = 1000, model.file = ringModel, DIC = FALSE)
 
@@ -352,7 +352,7 @@ tsplot(out.mcmc[ , 'beta0'])
 
 beta_i <- out.mcmc[ , paste('beta_i[', 1:N, ']', sep = '')]
 
-par(mfrow = c(4, 4))
+par(mfrow = c(4, 6))
 for(i in 1:N)
   tsplot(beta_i[ , i])
 
