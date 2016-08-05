@@ -168,7 +168,7 @@ hr {
 <body>
 <h1>PalEON Summer Course: Bayesian exercise</h1>
 
-<h2>August 2014</h2>
+<h2>August 2016</h2>
 
 <h2>Chris Paciorek</h2>
 
@@ -206,7 +206,7 @@ D_{i,t+1} = X_{it} + D_{it}
 <li><p>What priors do we need to complete the model?</p></li>
 <li><p>If we set \(\phi^2\) to some (large) fixed value, how does the interpretation of the model change, compared to having a prior distribution on \(\phi^2\) and estimating \(\phi^2\)?</p></li>
 <li><p>What aspects of the real world does the model not account for?</p></li>
-<li><p>Implement the model for the data in <em>rings.csv</em> in JAGS. The ring width values are in the columns labeled by year and <em>DBH11</em> and <em>DBH12</em> are DBH in 2011 and 2012. Both the DBH and ring width data have been transformed so that they represent mm of diameter. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I&#39;d suggest using flat priors on the standard deviation for the variance terms in the model. I&#39;d also suggest writing the BUGS code in terms of <code>X</code> and <code>D</code> and using the log-normal distribution as the distribution for the <code>X</code> values. Note that in BUGS code <code>z ~ dlnorm(mu, tau)</code> means that <code>log(z)</code> has a normal distribution with mean <code>mu</code> and precision <code>tau</code>. Note: this is challenging. We&#39;re here to help as you have questions or get stuck.</p></li>
+<li><p>Implement the model for the data in <em>rings.csv</em> in JAGS, which are tree ring data collected by your predecessors here at UNDERC in 2014. The ring width values are in the columns labeled by year and <em>DBH14</em> is the DBH in 2014. Both the DBH and ring width data have been transformed so that they represent mm of diameter. Remember that JAGS uses the precision (inverse variance) as the second parameter of the normal distribution.  I&#39;d suggest using flat priors on the standard deviation for the variance terms in the model. I&#39;d also suggest writing the BUGS code in terms of <code>X</code> and <code>D</code> and using the log-normal distribution as the distribution for the <code>X</code> values. Note that in BUGS code <code>z ~ dlnorm(mu, tau)</code> means that <code>log(z)</code> has a normal distribution with mean <code>mu</code> and precision <code>tau</code>. Note: this is challenging. We&#39;re here to help as you have questions or get stuck.</p></li>
 <li><p>Look at the MCMC output and check how well the MCMC is performing. What length of burn-in do you think is needed. How well does the MCMC mix?  Can the variance components be estimated with the flat priors given the data available or is there a lot of uncertainty about the variance components? Notice the posteriors for \(w^2\) and \(\sigma^2\); can you explain what is going on?</p></li>
 </ol>
 
