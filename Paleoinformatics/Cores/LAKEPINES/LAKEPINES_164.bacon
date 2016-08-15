@@ -1,0 +1,18 @@
+## Ran on Fri Jul 29 15:01:10 2016 
+
+Cal 0 : ConstCal;
+Cal 1 : IntCal13, 0;
+Cal 2 : Marine13;
+Cal 3 : SHCal13, 0;
+
+##   id.   yr    std   depth  d.R  d.STD     t.a   t.b   cc
+Det 0 : Core top_34866 , -46, 2, 0,  0,  0,  3,  4,  0;
+Det 1 : Radiocarbon_34867 , 310, 30, 87,  0,  0,  3,  4,  1;
+Det 2 : Radiocarbon_34868 , 2970, 70, 324,  0,  0,  3,  4,  1;
+Det 3 : Radiocarbon_34869 , 3760, 40, 453,  0,  0,  3,  4,  1;
+Det 4 : Radiocarbon_34870 , 5140, 45, 607,  0,  0,  3,  4,  1;
+Det 5 : Radiocarbon_34871 , 7620, 50, 680,  0,  0,  3,  4,  1;
+Det 6 : Radiocarbon_34872 , 11050, 50, 817,  0,  0,  3,  4,  1;
+
+##		 K   MinYr   MaxYr   th0   th0p   w.a   w.b   alpha  beta  dmin  dmax
+Bacon 0: FixT, 164,  -1000,  1e+06,  -47,  -45,  2.8,  1.2,  1.5,  0.15, 0, 817;
