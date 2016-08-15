@@ -213,7 +213,7 @@ hr {
 
 <p>Go to &ldquo;File-&gt;New Project&rdquo; and select &ldquo;Version Control&rdquo; and &ldquo;Git&rdquo;. Enter &ldquo;<a href="https://github.com/PalEON-Project/Camp2016">https://github.com/PalEON-Project/Camp2016</a>&rdquo; as the &ldquo;Repository URL&rdquo; and click &ldquo;Create Project&rdquo; (you can choose the directory in which to place the project with the &ldquo;Create project as subdirectory of&rdquo; option). It should create a &ldquo;Camp2016&rdquo; directory with all of the materials within whichever directory you chose.</p>
 
-<p>Or <a href="http://www.stat.berkeley.edu/%7Epaciorek/transfer/camp2016-statsR.zip">http://www.stat.berkeley.edu/~paciorek/transfer/camp2016-statsR.zip</a></p>
+<p>Or <a href="https://github.com/PalEON-Project/Camp2016/archive/master.zip">https://github.com/PalEON-Project/Camp2016/archive/master.zip</a>.</p>
 
 <h1>Reading in data</h1>
 
@@ -225,7 +225,7 @@ hr {
 <pre><code class="r">getwd()
 </code></pre>
 
-<pre><code>## [1] &quot;/accounts/gen/vis/paciorek/Desktop/Camp2016/statsR&quot;
+<pre><code>## [1] &quot;/var/tmp/paciorek/paleon/Camp2016/statsR&quot;
 </code></pre>
 
 <pre><code class="r">setwd(&#39;~/Desktop/Camp2016/statsR&#39;)
@@ -578,7 +578,7 @@ cor(full[ , taxaCols])
 ## other     0.45234243 -0.250552627 -0.1558156  0.019186486  1.00000000
 </code></pre>
 
-<pre><code class="r">require(fields, quietly = TRUE)
+<pre><code class="r">library(fields, quietly = TRUE)
 </code></pre>
 
 <pre><code>## Spam version 1.0-1 (2014-09-09) is loaded.
@@ -604,7 +604,7 @@ cor(full[ , taxaCols])
 
 <p>Now let&#39;s make some basic plots.</p>
 
-<pre><code class="r">require(maps)
+<pre><code class="r">library(maps)
 plot(full$lon, full$lat, xlim = c(-73.5, -70), ylim = c(41.3,43.5), col = &#39;red&#39;, pch = 16) 
 map(&#39;state&#39;, add = TRUE) 
 </code></pre>
@@ -859,7 +859,7 @@ for(i in 1:length(myList))
 
 <p>What do we need to decide in terms of what our function is going to do, what its arguments should be, and what steps the function should carry out? </p>
 
-<pre><code class="r">require(maps)
+<pre><code class="r">library(maps)
 x &lt;- full$lon
 y &lt;- full$lat
 z &lt;- full$oak

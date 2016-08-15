@@ -9,7 +9,7 @@ First, let's make sure we have the course materials on our computers. We can dow
 
 Go to "File->New Project" and select "Version Control" and "Git". Enter "https://github.com/PalEON-Project/Camp2016" as the "Repository URL" and click "Create Project" (you can choose the directory in which to place the project with the "Create project as subdirectory of" option). It should create a "Camp2016" directory with all of the materials within whichever directory you chose.
 
-Or http://www.stat.berkeley.edu/~paciorek/transfer/camp2016-statsR.zip
+Or https://github.com/PalEON-Project/Camp2016/archive/master.zip.
 
 # Reading in data
 

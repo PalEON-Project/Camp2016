@@ -123,7 +123,7 @@ That illustrated prior ignorance.
  some idea about the proportion of oak in the forest.
  (Perhaps based on a previous study.)
 For the moment (we'll see why in a minute), let's use a beta distribution
- to capture our belief about  $p$ in advance of seeing the data.
+ to capture our belief about  $\theta$ in advance of seeing the data.
  Suppose we think there is about 20% oak in the forest with a standard deviation
  of 10%. We can roughly capture this belief using a beta distribution with 
  $\alpha=3$, $\beta=12$.
@@ -147,7 +147,7 @@ $$
 
 
 **Questions**: What is the posterior distribution of 
- $p$ now? What is the posterior expected value? What is the posterior variance?
+ $\theta$ now? What is the posterior expected value? What is the posterior variance?
 
 ```{r infPrior, fig.width=7}
 y <- 30; n <- 100
