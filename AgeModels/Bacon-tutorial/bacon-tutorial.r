@@ -1,7 +1,14 @@
+# update neotoma
+install.packages("devtools")
+library(devtools)
+install_github("ropensci/neotoma")
+library(neotoma)
+
 # load packages
 library(neotoma)
 library(ggplot2)
 library(reshape2)
+#library(mapdata)
 
 # set your working directory!
 
@@ -32,7 +39,26 @@ bacon_age_posts <- function(d, b.depths, out, thick)
 # we can get the dataset id from neotoma explorer, or using get_site
 
 # get the data
-pol      <- get_download(13047)
+pol  <- get_download(13047)
+
+site <- get_site(pol)
+
+# if you have the package mapdata installed
+# A crude way of making the oceans blue.
+# par(mfrow=c(1,1))
+# plot(1, type = 'n',
+#      xlim=range(site$long)+c(-30, 30),
+#      ylim=range(site$lat)+c(-30, 30),
+#      xlab='Longitude', ylab = 'Latitude')
+# rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "lightblue")
+# map('world',
+#     interior=TRUE,
+#     fill=TRUE,
+#     col='gray',
+#     xlim=range(site$long)+c(-30, 30),
+#     ylim=range(site$lat)+c(-30, 30),
+#     add=TRUE)
+# points(site$long, site$lat, pch=19, cex=2, col='red')
 
 # get the geochron
 geochron <- get_geochron(get_site(pol))
