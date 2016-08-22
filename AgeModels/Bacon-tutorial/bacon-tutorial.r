@@ -154,16 +154,13 @@ core_bac_hiatus <- Bacon('IRWIN',
                          thick         = thick,
                          ask           = FALSE,
                          suggest       = FALSE,
-                         # depths.file   = FALSE, # we could pass one
+                         depths.file   = TRUE, # we could pass one
                          hiatus.shape  = hiatus.shape,
                          hiatus.mean   = hiatus.mean,
                          hiatus.depths = hiatus.depth)
 
-
-
-
 # # Add the Bacon model back into the object:
-# pol[[1]] <- read_bacon(x = "IRWIN", sections = 45, add = TRUE, download = pol[[1]], chron_name = "Bacon2")
+pol[[1]] <- read_bacon(x = "IRWIN", sections = 45, add = TRUE, download = pol[[1]], chron_name = "Bacon2")
 # pol[[1]] <- compile_taxa(pol[[1]], "P25")
 # 
 # trees_shrubs <- pol[[1]]$taxon.list$compressed[which(pol[[1]]$taxon.list$ecological.group == "TRSH")]
